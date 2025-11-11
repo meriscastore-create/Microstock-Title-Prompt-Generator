@@ -67,8 +67,8 @@ const jsonPromptSchema = {
   type: Type.OBJECT,
   properties: {
     concept: { type: Type.STRING, description: "A short descriptive sentence with 1 main element and 2 supporting elements from the title. It must not contain the words 'seamless', 'pattern', or 'illustration'." },
-    color: { type: Type.STRING, description: "A descriptive phrase for a soft, vibrant, non-gradient color palette. Format: 'description '" },
-    background: { type: Type.STRING, description: "A descriptive phrase for a single-color background that MUST include the phrase 'solid single color'. Format: 'description, solid single color '" },
+    color: { type: Type.STRING, description: "A descriptive phrase for a vibrant, strong, enhanced, non-gradient color palette. Format: 'description of colors'" },
+    background: { type: Type.STRING, description: "A descriptive phrase for a clean, single-color background that MUST include the phrase 'solid single color'. Format: 'description, solid single color'" },
     mood: { type: Type.STRING, description: "A comma-separated list of moods, fitting the style. Format: 'mood1, mood2, mood3, ...'" },
     style: { type: Type.STRING, description: "One art style name followed by its 4 characteristics, comma-separated. Format: 'Style Name, characteristic1, characteristic2, ...'" },
   }
@@ -82,15 +82,10 @@ export const generateJsonPrompt = async (title: string, apiKey: string): Promise
 
     1.  **concept**: Create a descriptive sentence using the main subject and two supporting elements from the title. DO NOT use the words "seamless", "pattern", or "illustration".
         *   Example: "Cute festive kitten wearing a Santa hat, holiday winter pet."
-    2.  **color**: Describe a soft, vibrant, pastel, natural, non-gradient color palette that fits the title's theme.
-        *   Example: "vivid, crisp, bright, saturated, digital, dynamic tropical tones"
-        *   Example: "soft, warm, muted, pastel, natural, non-gradient festive winter tones"
-        *   Example: "strong, cold, luminous, rich, artificial, high-chroma modern tones"
-        *   Example: "intense, cool, brilliant, glossy, synthetic, neon-inspired summer tones"
-        *   Example: "radiant, icy, vibrant, bold, metallic, high-energy futuristic tones"
-    3.  **background**: **Analyze the title for clues about the background (e.g., 'on a dark background', 'light background'). Create a matching background description.** If the title provides no clues, pick a light, matching color. The description MUST always be a single color and MUST include the exact phrase "solid single color".
-        *   Example (if title implies dark): "deep, moody, solid single color ."
-        *   Example (default): "light, matching, solid single color ."
+    2.  **color**: Describe a vibrant, strong, and enhanced non-gradient color palette that fits the title's theme. DO NOT mention any specific colors.
+        *   Example: "vibrant and striking festive color palette"
+    3.  **background**: Describe a clean, solid, single-color background. The description MUST include the exact phrase "solid single color". DO NOT mention any specific colors. The goal is to allow for varied background colors while maintaining a clean look.
+        *   Example: "clean, complementary, solid single color background"
     4.  **mood**: List several moods that fit the style and colors.
         *   Example: "festive, cheerful, cute, cozy, playful, happy, wholesome"
     5.  **style**: List one specific art style (e.g., Gouache painting, Scandinavian, Kawaii) followed by its four key characteristics.
@@ -129,11 +124,14 @@ export const changeColor = async (currentPrompt: JsonPrompt, apiKey: string): Pr
     - Concept: "${currentPrompt.concept}"
     - Style: "${currentPrompt.style}"
     
-    Generate a new color palette, background, and mood. The colors should remain soft, vibrant, and non-gradient. The background description MUST include the phrase 'solid single color'.
+    Generate a new color palette, background, and mood.
+    - **color**: The color palette must be vibrant, strong, and non-gradient. DO NOT mention specific colors.
+    - **background**: The background description MUST be for a clean, single-color background and include the phrase 'solid single color'. DO NOT mention specific colors.
+    
     Strictly follow this example format:
-    - "color": "soft, vibrant, pastel, natural, non-gradient festive winter tones "
-    - "background": "light, matching, solid single color ."
-    - "mood": "festive, cheerful, cute, cozy, playful, happy, wholesome"
+    - "color": "vibrant, strong, and enhanced festive tones"
+    - "background": "clean, high-contrast, solid single color background"
+    - "mood": "energetic, joyful, lively, dynamic"
 
     Return only a JSON object with "color", "background", and "mood" fields.`;
 
@@ -169,9 +167,9 @@ export const changeStyle = async (currentPrompt: JsonPrompt, apiKey: string): Pr
     The current style is "${currentPrompt.style}". Generate a completely different style, along with a new matching color palette, background, and mood.
     Strictly follow this example format:
     - "style": One specific art style followed by its four key characteristics. Example: "Gouache painting, opaque pigments, matte finish, bold lines"
-    - "color": A descriptive phrase for a soft non-gradient color palette. Example: "soft, warm, muted, pastel, natural, non-gradient festive winter tones (muted red, forest green, cream, light grey, beige)"
-    - "background": A descriptive phrase for a single-color background that MUST include the phrase 'solid single color'. Example: "light, matching, solid single color (pale ice blue)."
-    - "mood": A list of moods that fit the new style. Example: "festive, cheerful, cute, cozy, playful, happy, wholesome"
+    - "color": A descriptive phrase for a vibrant, strong, non-gradient color palette. DO NOT mention specific colors. Example: "strong, vibrant, and enhanced cartoon colors"
+    - "background": A descriptive phrase for a clean, single-color background that MUST include the phrase 'solid single color'. DO NOT mention specific colors. Example: "clean, bold, solid single color background"
+    - "mood": A list of moods that fit the new new style. Example: "energetic, playful, dynamic, happy"
 
     Return only a JSON object with "style", "color", "background", and "mood" fields.`;
     
