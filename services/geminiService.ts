@@ -67,8 +67,8 @@ const jsonPromptSchema = {
   type: Type.OBJECT,
   properties: {
     concept: { type: Type.STRING, description: "A short descriptive sentence with 1 main element and 2 supporting elements from the title. It must not contain the words 'seamless', 'pattern', or 'illustration'." },
-    color: { type: Type.STRING, description: "A descriptive phrase for a soft, muted, pastel, non-gradient color palette. Format: 'description (color1, color2, color3, ...)'" },
-    background: { type: Type.STRING, description: "A descriptive phrase for a single-color background that MUST include the phrase 'solid single color'. Format: 'description, solid single color (color)'" },
+    color: { type: Type.STRING, description: "A descriptive phrase for a soft, vibrant, non-gradient color palette. Format: 'description '" },
+    background: { type: Type.STRING, description: "A descriptive phrase for a single-color background that MUST include the phrase 'solid single color'. Format: 'description, solid single color '" },
     mood: { type: Type.STRING, description: "A comma-separated list of moods, fitting the style. Format: 'mood1, mood2, mood3, ...'" },
     style: { type: Type.STRING, description: "One art style name followed by its 4 characteristics, comma-separated. Format: 'Style Name, characteristic1, characteristic2, ...'" },
   }
@@ -83,10 +83,14 @@ export const generateJsonPrompt = async (title: string, apiKey: string): Promise
     1.  **concept**: Create a descriptive sentence using the main subject and two supporting elements from the title. DO NOT use the words "seamless", "pattern", or "illustration".
         *   Example: "Cute festive kitten wearing a Santa hat, holiday winter pet."
     2.  **color**: Describe a soft, warm, muted, pastel, natural, non-gradient color palette that fits the title's theme.
-        *   Example: "soft, warm, muted, pastel, natural, non-gradient festive winter tones (muted red, forest green, cream, light grey, beige)"
+        *   Example: "vivid, crisp, bright, saturated, digital, dynamic tropical tones"
+        *   Example: "soft, warm, muted, pastel, natural, non-gradient festive winter tones"
+        *   Example: "strong, cold, luminous, rich, artificial, high-chroma modern tones"
+        *   Example: "intense, cool, brilliant, glossy, synthetic, neon-inspired summer tones"
+        *   Example: "radiant, icy, vibrant, bold, metallic, high-energy futuristic tones"
     3.  **background**: **Analyze the title for clues about the background (e.g., 'on a dark background', 'light background'). Create a matching background description.** If the title provides no clues, pick a light, matching color. The description MUST always be a single color and MUST include the exact phrase "solid single color".
-        *   Example (if title implies dark): "deep, moody, solid single color (charcoal grey)."
-        *   Example (default): "light, matching, solid single color (pale ice blue)."
+        *   Example (if title implies dark): "deep, moody, solid single color ."
+        *   Example (default): "light, matching, solid single color ."
     4.  **mood**: List several moods that fit the style and colors.
         *   Example: "festive, cheerful, cute, cozy, playful, happy, wholesome"
     5.  **style**: List one specific art style (e.g., Gouache painting, Scandinavian, Kawaii) followed by its four key characteristics.
