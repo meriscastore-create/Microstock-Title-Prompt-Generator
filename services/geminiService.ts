@@ -24,30 +24,33 @@ export const generateTitle = async (keyword: string, apiKey: string): Promise<st
   
   const prompt = `You are an expert microstock title generator. Your task is to generate an SEO-optimized title based on the user's input: '${keyword}'.
 
-**Constraint:** The final title's total length MUST be under 160 characters.
+**Constraints:**
+*   The final title's total length MUST be under 160 characters.
+*   The title MUST contain the words "seamless" and "pattern". They will naturally be included if you follow the structure below.
 
 **Structure (Strictly Enforced):**
-The title must follow this exact three-part structure:
-1.  **First Sentence:** A short, engaging phrase including the main subject.
-2.  **Second Sentence:** A more descriptive sentence detailing the main subject and its key elements or style.
-3.  **Third Part:** A series of comma-separated, high-value microstock keywords. This part MUST include "seamless pattern" and "vector illustration". Also include other relevant terms from this list: "background", "design", "texture", "wallpaper", "fabric", "textile", "wrapping paper", "print", "graphic".
+The title MUST follow this exact four-part structure, with each part separated by a period:
+1.  **Part 1:** A short phrase identifying the main element, followed by "Pattern Vector.". It must end with a period.
+2.  **Part 2:** A more descriptive sentence starting with "Seamless", including the main element, "Pattern", and supporting elements. It must end with a period.
+3.  **Part 3:** A short phrase providing additional context or theme (e.g., 'Winter landscape.'). It must end with a period.
+4.  **Part 4:** A final phrase for context, such as "seamless pattern Background.". It must end with a period.
+
+**Example of the required structure and punctuation:**
+\`Christmas Tree Pattern Vector. Seamless Christmas Tree Pattern with reindeer and mountain. Winter landscape. seamless pattern Background.\`
+
+**Breakdown of the Example:**
+*   Part 1: \`Christmas Tree Pattern Vector.\` (Main element)
+*   Part 2: \`Seamless Christmas Tree Pattern with reindeer and mountain.\` (Descriptive sentence with supporting elements)
+*   Part 3: \`Winter landscape.\` (Contextual keywords)
+*   Part 4: \`seamless pattern Background.\` (Final keywords)
 
 **Input Handling Rules:**
-*   **Typo Correction:** If the input seems to have a typo (e.g., 'Chrismas Tre'), interpret the intended meaning ('Christmas Tree') and use the correct term for the title.
-*   **If the input is comma-separated keywords (e.g., 'cat, playful, cartoon'):** Combine them to create a cohesive theme.
-*   **If the input is a long phrase or a full title (e.g., 'A detailed illustration of vintage flowers'):** Do not copy it. Analyze its core concepts and generate a *new, similar* title that follows the required structure.
-*   **If the input is a simple keyword (e.g., 'Christmas Tree'):** Use it as the main subject.
+*   **Typo Correction:** If the input seems to have a typo (e.g., 'Chrismas Tre'), interpret the intended meaning ('Christmas Tree') and use the correct term.
+*   **Comma-Separated Keywords (e.g., 'cat, playful, cartoon'):** Naturally integrate ALL of these keywords into the four-part title. The final title must be coherent, sound natural, and be easily understood by SEO.
+*   **Long Phrase/Title (e.g., 'A detailed illustration of vintage flowers'):** Do not copy it. Analyze its core concepts and generate a *new, similar* title that strictly follows the required four-part structure.
+*   **Simple Keyword (e.g., 'Christmas Tree'):** Use it as the main subject.
 
-**Goal:** The final output must be a single block of text, formatted exactly as shown in the examples, with a total length under 160 characters. The title must sound natural, be highly descriptive, and be packed with relevant keywords for microstock platforms.
-
-**Example for 'Foliage, Holly' input (comma-separated):**
-Winter foliage pattern. Holly leaves and red berries in a festive composition. Seamless pattern, vector illustration, Christmas background, botanical print, for gift wrap and textile design.
-
-**Example for 'A beautiful seamless pattern with Christmas trees and gifts' input (long phrase):**
-Christmas tree seamless pattern. Festive holiday trees with ornaments and gifts on a winter background. Vector illustration, wallpaper design, for fabric, print, wrapping paper.
-
-**Example for 'Happy Cat' input (simple keyword):**
-Happy cute cat pattern. Adorable kitten characters with hearts and stars in a playful cartoon style. Seamless pattern, vector illustration, animal background, textile print, fabric design.`;
+**Goal:** The final output must be a single block of text, formatted exactly as described, with a total length under 160 characters. The title must be highly descriptive and packed with relevant keywords for microstock platforms.`;
 
   try {
     const response = await ai.models.generateContent({
