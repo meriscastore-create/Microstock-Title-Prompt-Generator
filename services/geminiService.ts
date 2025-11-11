@@ -82,7 +82,7 @@ export const generateJsonPrompt = async (title: string, apiKey: string): Promise
 
     1.  **concept**: Create a descriptive sentence using the main subject and two supporting elements from the title. DO NOT use the words "seamless", "pattern", or "illustration".
         *   Example: "Cute festive kitten wearing a Santa hat, holiday winter pet."
-    2.  **color**: Describe a soft, warm, muted, pastel, natural, non-gradient color palette that fits the title's theme.
+    2.  **color**: Describe a soft, vibrant, pastel, natural, non-gradient color palette that fits the title's theme.
         *   Example: "vivid, crisp, bright, saturated, digital, dynamic tropical tones"
         *   Example: "soft, warm, muted, pastel, natural, non-gradient festive winter tones"
         *   Example: "strong, cold, luminous, rich, artificial, high-chroma modern tones"
@@ -129,10 +129,10 @@ export const changeColor = async (currentPrompt: JsonPrompt, apiKey: string): Pr
     - Concept: "${currentPrompt.concept}"
     - Style: "${currentPrompt.style}"
     
-    Generate a new color palette, background, and mood. The colors should remain soft, muted, pastel, and non-gradient. The background description MUST include the phrase 'solid single color'.
+    Generate a new color palette, background, and mood. The colors should remain soft, vibrant, and non-gradient. The background description MUST include the phrase 'solid single color'.
     Strictly follow this example format:
-    - "color": "soft, warm, muted, pastel, natural, non-gradient festive winter tones (muted red, forest green, cream, light grey, beige)"
-    - "background": "light, matching, solid single color (pale ice blue)."
+    - "color": "soft, vibrant, pastel, natural, non-gradient festive winter tones "
+    - "background": "light, matching, solid single color ."
     - "mood": "festive, cheerful, cute, cozy, playful, happy, wholesome"
 
     Return only a JSON object with "color", "background", and "mood" fields.`;
