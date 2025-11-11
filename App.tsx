@@ -34,13 +34,36 @@ const KeyIcon: React.FC<{ className?: string }> = ({ className = "w-6 h-6 text-m
     </svg>
 );
 
+// --- TYPES ---
+interface Toast {
+  id: number;
+  message: string;
+  type: 'success' | 'error';
+}
+
 // --- HELPER FUNCTIONS ---
 const formatJsonPrompt = (prompt: JsonPrompt): string => {
     const keyOrder = ['concept', 'composition', 'color', 'background', 'mood', 'style', 'settings'];
     return JSON.stringify(prompt, keyOrder, 2);
 };
 
-// --- API KEY MODAL COMPONENT ---
+// --- COMPONENTS ---
+const Toast: React.FC<{ message: string; type: 'success' | 'error'; onClose: () => void }> = ({ message, type, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 5000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  const bgColor = type === 'success' ? 'bg-green-600/90 border-green-700' : 'bg-red-600/90 border-red-700';
+
+  return (
+    <div className={`flex items-center justify-between p-4 rounded-lg shadow-lg text-white border backdrop-blur-sm ${bgColor} animate-fade-in`}>
+      <span className="pr-4">{message}</span>
+      <button onClick={onClose} className="opacity-70 hover:opacity-100">&times;</button>
+    </div>
+  );
+};
+
 interface ApiKeyModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -99,8 +122,7 @@ const App: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isCreatingPrompt, setIsCreatingPrompt] = useState<boolean>(false);
     const [isModifying, setIsModifying] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
-    const [copySuccess, setCopySuccess] = useState<'title' | 'prompt' | ''>('');
+    const [toasts, setToasts] = useState<Toast[]>([]);
     const [jsonString, setJsonString] = useState('');
     const [apiKey, setApiKey] = useState<string>('');
     const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
@@ -114,24 +136,32 @@ const App: React.FC = () => {
         }
     }, []);
 
+    const addToast = useCallback((message: string, type: 'success' | 'error') => {
+        const id = Date.now() + Math.random();
+        setToasts(prevToasts => [...prevToasts, { id, message, type }]);
+    }, []);
+    
+    const removeToast = (id: number) => {
+        setToasts(currentToasts => currentToasts.filter(toast => toast.id !== id));
+    };
+
     const handleSaveApiKey = (key: string) => {
         setApiKey(key);
         localStorage.setItem('gemini-api-key', key);
         setIsApiKeyModalOpen(false);
-        setError(null); // Clear previous errors
+        addToast('API Key saved successfully!', 'success');
     };
     
     const handleApiCall = async <T,>(apiFunc: () => Promise<T>): Promise<T | null> => {
         if (!apiKey) {
-            setError("Please set your Gemini API Key before generating.");
+            addToast("Please set your Gemini API Key.", 'error');
             setIsApiKeyModalOpen(true);
             return null;
         }
-        setError(null);
         try {
             return await apiFunc();
         } catch (e: any) {
-            setError(e.message || 'An unknown error occurred.');
+            addToast(e.message || 'An unknown error occurred.', 'error');
             if (e.message.toLowerCase().includes('api key')) {
                 setIsApiKeyModalOpen(true);
             }
@@ -141,7 +171,7 @@ const App: React.FC = () => {
     
     const handleGenerate = useCallback(async () => {
         if (!userInput.trim()) {
-            setError('Please enter a keyword.');
+            addToast('Please enter a keyword.', 'error');
             return;
         }
         setIsLoading(true);
@@ -156,7 +186,7 @@ const App: React.FC = () => {
             setGeneratedTitle(title);
         }
         setIsLoading(false);
-    }, [userInput, apiKey]);
+    }, [userInput, apiKey, addToast]);
 
     const handleCreateJsonPrompt = async () => {
         if (!generatedTitle) return;
@@ -171,11 +201,10 @@ const App: React.FC = () => {
 
     const handleCopy = (textToCopy: string, type: 'title' | 'prompt') => {
         navigator.clipboard.writeText(textToCopy).then(() => {
-            setCopySuccess(type);
-            setTimeout(() => setCopySuccess(''), 2000);
+            addToast(type === 'title' ? 'Title copied!' : 'JSON copied!', 'success');
         }, (err) => {
             console.error('Could not copy text: ', err);
-            setError('Failed to copy. Please try again.');
+            addToast('Failed to copy. Please try again.', 'error');
         });
     };
 
@@ -215,6 +244,14 @@ const App: React.FC = () => {
 
     return (
         <div className="min-h-screen p-4 sm:p-6 lg:p-8">
+            <div aria-live="assertive" className="fixed inset-0 flex items-start justify-end p-4 sm:p-6 z-50 pointer-events-none">
+                <div className="w-full max-w-sm space-y-2">
+                    {toasts.map((toast) => (
+                        <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />
+                    ))}
+                </div>
+            </div>
+
             <ApiKeyModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} onSave={handleSaveApiKey} />
             <header className="text-center mb-8 relative">
                 <button
@@ -260,8 +297,6 @@ const App: React.FC = () => {
                     </div>
                 </div>
 
-                {error && <div className="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg mb-8 max-w-4xl mx-auto" role="alert">{error}</div>}
-
                 <div className={`grid ${gridLayoutClass} gap-8`}>
                     <div className="flex flex-col gap-8">
                         {generatedTitle && (
@@ -284,7 +319,7 @@ const App: React.FC = () => {
                                         Create JSON
                                     </button>
                                     <button onClick={() => handleCopy(generatedTitle, 'title')} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center col-span-1 sm:col-span-2 lg:col-span-1">
-                                        <CopyIcon /> {copySuccess === 'title' ? 'Copied!' : 'Copy Title'}
+                                        <CopyIcon /> Copy Title
                                     </button>
                                 </div>
                             </div>
@@ -307,7 +342,7 @@ const App: React.FC = () => {
                                        {isModifying === 'style' ? <Spinner className="mr-2"/> : <MagicWandIcon />} Change Style
                                     </button>
                                     <button onClick={() => handleCopy(jsonString, 'prompt')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
-                                        <CopyIcon /> {copySuccess === 'prompt' ? 'Copied!' : 'Copy JSON'}
+                                        <CopyIcon /> Copy JSON
                                     </button>
                                 </div>
                             </div>

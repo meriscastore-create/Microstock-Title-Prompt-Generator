@@ -15,7 +15,7 @@ const handleApiError = (error: unknown): never => {
             throw new Error("API telah mencapai limit.");
         }
     }
-    throw new Error("Ayo coba lagi.");
+    throw new Error("Terjadi kesalahan tak terduga. Silakan coba lagi.");
 };
 
 export const generateTitle = async (keyword: string, apiKey: string): Promise<string> => {
