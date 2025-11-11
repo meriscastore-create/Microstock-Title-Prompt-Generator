@@ -60,28 +60,28 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSave }) =>
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fade-in" aria-modal="true" role="dialog">
             <div className="bg-dark-card rounded-lg p-6 sm:p-8 max-w-md w-full border border-dark-border m-4">
-                <h2 className="text-2xl font-bold mb-4">Enter your Gemini API Key</h2>
+                <h2 className="text-2xl font-bold mb-4">Masukkan Kunci API Gemini Anda</h2>
                 <p className="text-medium-text mb-6">
-                    You can get your free API key from{' '}
+                    Anda bisa mendapatkan kunci API gratis dari{' '}
                     <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-brand-primary hover:underline font-semibold">
                         Google AI Studio
-                    </a>. Your key is stored only in your browser.
+                    </a>. Kunci Anda hanya disimpan di browser Anda.
                 </p>
                 <input
                     type="password"
                     value={key}
                     onChange={(e) => setKey(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                    placeholder="Paste your API key here"
+                    placeholder="Tempel kunci API Anda di sini"
                     className="w-full bg-gray-800 border border-dark-border rounded-md px-4 py-3 mb-6 text-light-text placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-primary"
-                    aria-label="Gemini API Key"
+                    aria-label="Kunci API Gemini"
                 />
                 <div className="flex justify-end gap-4">
                     <button onClick={onClose} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition-colors">
-                        Cancel
+                        Batal
                     </button>
                     <button onClick={handleSave} className="bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-2 px-4 rounded-md transition-colors">
-                        Save Key
+                        Simpan Kunci
                     </button>
                 </div>
             </div>
@@ -123,7 +123,7 @@ const App: React.FC = () => {
     
     const handleApiCall = async <T,>(apiFunc: () => Promise<T>): Promise<T | null> => {
         if (!apiKey) {
-            setError("Please set your Gemini API Key before generating.");
+            setError("Harap atur Kunci API Gemini Anda sebelum membuat.");
             setIsApiKeyModalOpen(true);
             return null;
         }
@@ -131,8 +131,8 @@ const App: React.FC = () => {
         try {
             return await apiFunc();
         } catch (e: any) {
-            setError(e.message || 'An unknown error occurred.');
-            if (e.message.toLowerCase().includes('api key')) {
+            setError(e.message || 'Terjadi kesalahan yang tidak diketahui.');
+            if (e.message.toLowerCase().includes('api key') || e.message.toLowerCase().includes('kunci api')) {
                 setIsApiKeyModalOpen(true);
             }
             return null;
@@ -141,7 +141,7 @@ const App: React.FC = () => {
     
     const handleGenerate = useCallback(async () => {
         if (!userInput.trim()) {
-            setError('Please enter a keyword.');
+            setError('Silakan masukkan kata kunci.');
             return;
         }
         setIsLoading(true);
@@ -174,8 +174,8 @@ const App: React.FC = () => {
             setCopySuccess(type);
             setTimeout(() => setCopySuccess(''), 2000);
         }, (err) => {
-            console.error('Could not copy text: ', err);
-            setError('Failed to copy. Please try again.');
+            console.error('Tidak dapat menyalin teks: ', err);
+            setError('Gagal menyalin. Silakan coba lagi.');
         });
     };
 
@@ -218,15 +218,15 @@ const App: React.FC = () => {
                 <button
                     onClick={() => setIsApiKeyModalOpen(true)}
                     className="absolute top-0 right-0 bg-dark-card p-2 rounded-full hover:bg-gray-700 transition-colors"
-                    aria-label="Set API Key"
+                    aria-label="Atur Kunci API"
                 >
                     <KeyIcon />
                 </button>
                 <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">
-                    Microstock Title & Prompt Generator
+                    Pembuat Judul & Prompt Microstock
                 </h1>
                 <p className="mt-4 text-lg text-medium-text max-w-2xl mx-auto">
-                    Enter a keyword to generate an SEO-optimized title and a detailed JSON prompt for AI image generation.
+                    Masukkan kata kunci untuk membuat judul yang dioptimalkan untuk SEO dan prompt JSON terperinci untuk pembuatan gambar AI.
                 </p>
             </header>
 
@@ -238,7 +238,7 @@ const App: React.FC = () => {
                             value={userInput}
                             onChange={(e) => setUserInput(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                            placeholder="e.g., Cute Cat, Vintage Flower"
+                            placeholder="cth., Pohon Natal, Bunga Vintage"
                             className="flex-grow bg-gray-800 border border-dark-border rounded-md px-4 py-3 text-light-text placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-primary transition duration-200"
                         />
                         <button
@@ -249,10 +249,10 @@ const App: React.FC = () => {
                             {isLoading ? (
                                 <>
                                   <Spinner className="-ml-1 mr-3 h-5 w-5 text-white" />
-                                  Generating...
+                                  Membuat...
                                 </>
                             ) : (
-                                "Generate Title"
+                                "Buat Judul"
                             )}
                         </button>
                     </div>
@@ -264,11 +264,11 @@ const App: React.FC = () => {
                     <div className="flex flex-col gap-8">
                         {generatedTitle && (
                             <div className="bg-dark-card shadow-lg rounded-lg p-6 border border-dark-border animate-fade-in">
-                                <h2 className="text-2xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Generated Title</h2>
+                                <h2 className="text-2xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Judul Dihasilkan</h2>
                                 <p className="text-medium-text mb-4 bg-gray-800 p-4 rounded-md">{generatedTitle}</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <button onClick={handleCheckKeywords} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
-                                        <CheckIcon /> Check Keywords
+                                        <CheckIcon /> Periksa Kata Kunci
                                     </button>
                                     <button
                                         onClick={handleCreateJsonPrompt}
@@ -276,10 +276,10 @@ const App: React.FC = () => {
                                         className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:bg-gray-500"
                                     >
                                         {isCreatingPrompt ? <Spinner /> : <MagicWandIcon />}
-                                        Create JSON
+                                        Buat JSON
                                     </button>
                                     <button onClick={() => handleCopy(generatedTitle, 'title')} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center col-span-1 sm:col-span-2 lg:col-span-1">
-                                        <CopyIcon /> {copySuccess === 'title' ? 'Copied!' : 'Copy Title'}
+                                        <CopyIcon /> {copySuccess === 'title' ? 'Tersalin!' : 'Salin Judul'}
                                     </button>
                                 </div>
                             </div>
@@ -288,21 +288,21 @@ const App: React.FC = () => {
                         {jsonPrompt && (
                              <div className="bg-dark-card shadow-lg rounded-lg p-6 border border-dark-border animate-fade-in">
                                 <div className="flex justify-between items-center mb-4">
-                                     <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">JSON Prompt</h2>
-                                     <span className={`text-sm font-mono ${charCountColor}`}>{charCount} / 910 chars</span>
+                                     <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Prompt JSON</h2>
+                                     <span className={`text-sm font-mono ${charCountColor}`}>{charCount} / 910 karakter</span>
                                 </div>
                                 <pre className="text-sm bg-gray-800 p-4 rounded-md overflow-x-auto text-light-text whitespace-pre-wrap">
                                     <code>{jsonString}</code>
                                 </pre>
                                 <div className="mt-4 flex flex-col sm:flex-row gap-4">
                                     <button onClick={() => handleModifyPrompt('color')} disabled={!!isModifying} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:opacity-50">
-                                        {isModifying === 'color' ? <Spinner className="mr-2"/> : <MagicWandIcon />} Change Color
+                                        {isModifying === 'color' ? <Spinner className="mr-2"/> : <MagicWandIcon />} Ubah Warna
                                     </button>
                                     <button onClick={() => handleModifyPrompt('style')} disabled={!!isModifying} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:opacity-50">
-                                       {isModifying === 'style' ? <Spinner className="mr-2"/> : <MagicWandIcon />} Change Style
+                                       {isModifying === 'style' ? <Spinner className="mr-2"/> : <MagicWandIcon />} Ubah Gaya
                                     </button>
                                     <button onClick={() => handleCopy(jsonString, 'prompt')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
-                                        <CopyIcon /> {copySuccess === 'prompt' ? 'Copied!' : 'Copy JSON'}
+                                        <CopyIcon /> {copySuccess === 'prompt' ? 'Tersalin!' : 'Salin JSON'}
                                     </button>
                                 </div>
                             </div>
@@ -312,7 +312,7 @@ const App: React.FC = () => {
                     {showIframe && (
                         <div className="animate-fade-in lg:sticky lg:top-8">
                             <div className="bg-dark-card shadow-lg rounded-lg border border-dark-border w-full h-[80vh]">
-                                <iframe src={iframeUrl} className="w-full h-full rounded-lg" title="MyKeyworder Keyword Checker"></iframe>
+                                <iframe src={iframeUrl} className="w-full h-full rounded-lg" title="Pemeriksa Kata Kunci MyKeyworder"></iframe>
                             </div>
                         </div>
                     )}
