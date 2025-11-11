@@ -7,11 +7,15 @@ const FIXED_SETTINGS = "--ar 1:1 --v 6 --style raw --q 2 --repeat 2";
 const handleApiError = (error: unknown): never => {
     console.error("Gemini API Error:", error);
     if (error instanceof Error) {
-        if (error.message.toLowerCase().includes('api key not valid') || error.message.toLowerCase().includes('permission denied')) {
+        const lowerCaseMessage = error.message.toLowerCase();
+        if (lowerCaseMessage.includes('api key not valid') || lowerCaseMessage.includes('permission denied')) {
              throw new Error("Your API key seems to be invalid or lacks permissions. Please enter a valid key.");
         }
+        if (lowerCaseMessage.includes('quota') || lowerCaseMessage.includes('rate limit')) {
+            throw new Error("API telah mencapai limit.");
+        }
     }
-    throw new Error("An unexpected error occurred with the AI service. Please try again later.");
+    throw new Error("Ayo coba lagi.");
 };
 
 export const generateTitle = async (keyword: string, apiKey: string): Promise<string> => {
@@ -20,7 +24,7 @@ export const generateTitle = async (keyword: string, apiKey: string): Promise<st
   
   const prompt = `You are an expert microstock title generator. Your task is to generate an SEO-optimized title based on the user's input: '${keyword}'.
 
-**Constraint:** The final title's total length MUST be under 180 characters.
+**Constraint:** The final title's total length MUST be under 160 characters.
 
 **Structure (Strictly Enforced):**
 The title must follow this exact three-part structure:
@@ -29,11 +33,12 @@ The title must follow this exact three-part structure:
 3.  **Third Part:** A series of comma-separated, high-value microstock keywords. This part MUST include "seamless pattern" and "vector illustration". Also include other relevant terms from this list: "background", "design", "texture", "wallpaper", "fabric", "textile", "wrapping paper", "print", "graphic".
 
 **Input Handling Rules:**
+*   **Typo Correction:** If the input seems to have a typo (e.g., 'Chrismas Tre'), interpret the intended meaning ('Christmas Tree') and use the correct term for the title.
 *   **If the input is comma-separated keywords (e.g., 'cat, playful, cartoon'):** Combine them to create a cohesive theme.
 *   **If the input is a long phrase or a full title (e.g., 'A detailed illustration of vintage flowers'):** Do not copy it. Analyze its core concepts and generate a *new, similar* title that follows the required structure.
 *   **If the input is a simple keyword (e.g., 'Christmas Tree'):** Use it as the main subject.
 
-**Goal:** The final output must be a single block of text, formatted exactly as shown in the examples, with a total length under 180 characters. The title must sound natural, be highly descriptive, and be packed with relevant keywords for microstock platforms.
+**Goal:** The final output must be a single block of text, formatted exactly as shown in the examples, with a total length under 160 characters. The title must sound natural, be highly descriptive, and be packed with relevant keywords for microstock platforms.
 
 **Example for 'Foliage, Holly' input (comma-separated):**
 Winter foliage pattern. Holly leaves and red berries in a festive composition. Seamless pattern, vector illustration, Christmas background, botanical print, for gift wrap and textile design.

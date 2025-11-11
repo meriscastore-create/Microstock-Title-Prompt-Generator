@@ -207,8 +207,10 @@ const App: React.FC = () => {
         setIsModifying(null);
     };
 
-    const charCount = jsonString.length;
-    const charCountColor = charCount > 910 ? 'text-red-400' : 'text-green-400';
+    const titleCharCount = generatedTitle.length;
+    const titleCharCountColor = titleCharCount > 160 ? 'text-red-400' : 'text-green-400';
+    const jsonCharCount = jsonString.length;
+    const jsonCharCountColor = jsonCharCount > 910 ? 'text-red-400' : 'text-green-400';
     const gridLayoutClass = showIframe ? 'lg:grid-cols-2' : 'lg:grid-cols-1';
 
     return (
@@ -264,7 +266,10 @@ const App: React.FC = () => {
                     <div className="flex flex-col gap-8">
                         {generatedTitle && (
                             <div className="bg-dark-card shadow-lg rounded-lg p-6 border border-dark-border animate-fade-in">
-                                <h2 className="text-2xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Generated Title</h2>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Generated Title</h2>
+                                    <span className={`text-sm font-mono ${titleCharCountColor}`}>{titleCharCount} / 160 characters</span>
+                                </div>
                                 <p className="text-medium-text mb-4 bg-gray-800 p-4 rounded-md">{generatedTitle}</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     <button onClick={handleCheckKeywords} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
@@ -289,7 +294,7 @@ const App: React.FC = () => {
                              <div className="bg-dark-card shadow-lg rounded-lg p-6 border border-dark-border animate-fade-in">
                                 <div className="flex justify-between items-center mb-4">
                                      <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">JSON Prompt</h2>
-                                     <span className={`text-sm font-mono ${charCountColor}`}>{charCount} / 910 characters</span>
+                                     <span className={`text-sm font-mono ${jsonCharCountColor}`}>{jsonCharCount} / 910 characters</span>
                                 </div>
                                 <pre className="text-sm bg-gray-800 p-4 rounded-md overflow-x-auto text-light-text whitespace-pre-wrap">
                                     <code>{jsonString}</code>
