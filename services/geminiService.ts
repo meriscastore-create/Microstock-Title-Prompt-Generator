@@ -18,25 +18,31 @@ export const generateTitle = async (keyword: string, apiKey: string): Promise<st
   if (!apiKey) throw new Error("API key is not set.");
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `Generate a microstock title for the keyword: '${keyword}'.
+  const prompt = `You are an expert microstock title generator. Your task is to generate an SEO-optimized title based on the user's input: '${keyword}'.
 
 **Constraint:** The final title's total length MUST be under 180 characters.
 
+**Structure (Strictly Enforced):**
 The title must follow this exact three-part structure:
-1.  **First Sentence:** A short, engaging phrase with the main subject and the word "pattern".
-2.  **Second Sentence:** A more descriptive sentence detailing the main subject and supporting elements.
-3.  **Third Part:** A series of comma-separated descriptive keywords and phrases. This part should include the words "seamless" and "vector background", and suggest uses like "textile" or "print".
+1.  **First Sentence:** A short, engaging phrase including the main subject.
+2.  **Second Sentence:** A more descriptive sentence detailing the main subject and its key elements or style.
+3.  **Third Part:** A series of comma-separated, high-value microstock keywords. This part MUST include "seamless pattern" and "vector illustration". Also include other relevant terms from this list: "background", "design", "texture", "wallpaper", "fabric", "textile", "wrapping paper", "print", "graphic".
 
-**Goal:** The final output should be formatted exactly as shown in the examples below, with a length under 180 characters. The title should sound natural, descriptive, and optimized for microstock search.
+**Input Handling Rules:**
+*   **If the input is comma-separated keywords (e.g., 'cat, playful, cartoon'):** Combine them to create a cohesive theme.
+*   **If the input is a long phrase or a full title (e.g., 'A detailed illustration of vintage flowers'):** Do not copy it. Analyze its core concepts and generate a *new, similar* title that follows the required structure.
+*   **If the input is a simple keyword (e.g., 'Christmas Tree'):** Use it as the main subject.
 
-**Example for 'Happy Cat' input:**
-Happy cat pattern. Cute kitten characters with hearts and stars. Seamless pet animal vector background, cartoon animal print, textile graphic illustration.
+**Goal:** The final output must be a single block of text, formatted exactly as shown in the examples, with a total length under 180 characters. The title must sound natural, be highly descriptive, and be packed with relevant keywords for microstock platforms.
 
-**Example for 'Christmas Tree' input:**
-Christmas tree pattern. Festive holiday trees with ornaments and gifts. Seamless winter vector background, forest illustration, for fabric and print.
+**Example for 'Foliage, Holly' input (comma-separated):**
+Winter foliage pattern. Holly leaves and red berries in a festive composition. Seamless pattern, vector illustration, Christmas background, botanical print, for gift wrap and textile design.
 
-**Example for 'Foliage, Holly' input:**
-Winter foliage pattern. Holly leaves and red berry composition. Seamless Christmas vector background, festive botanical print, for gift wrap and textile.`;
+**Example for 'A beautiful seamless pattern with Christmas trees and gifts' input (long phrase):**
+Christmas tree seamless pattern. Festive holiday trees with ornaments and gifts on a winter background. Vector illustration, wallpaper design, for fabric, print, wrapping paper.
+
+**Example for 'Happy Cat' input (simple keyword):**
+Happy cute cat pattern. Adorable kitten characters with hearts and stars in a playful cartoon style. Seamless pattern, vector illustration, animal background, textile print, fabric design.`;
 
   try {
     const response = await ai.models.generateContent({
