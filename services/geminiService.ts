@@ -8,35 +8,35 @@ const handleApiError = (error: unknown): never => {
     console.error("Gemini API Error:", error);
     if (error instanceof Error) {
         if (error.message.toLowerCase().includes('api key not valid') || error.message.toLowerCase().includes('permission denied')) {
-             throw new Error("Kunci API Anda tampaknya tidak valid atau kurang izin. Silakan masukkan kunci yang valid.");
+             throw new Error("Your API key seems to be invalid or lacks permissions. Please enter a valid key.");
         }
     }
-    throw new Error("Terjadi kesalahan tak terduga dengan layanan AI. Silakan coba lagi nanti.");
+    throw new Error("An unexpected error occurred with the AI service. Please try again later.");
 };
 
 export const generateTitle = async (keyword: string, apiKey: string): Promise<string> => {
-  if (!apiKey) throw new Error("Kunci API belum diatur.");
+  if (!apiKey) throw new Error("API key is not set.");
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `Buat judul microstock untuk kata kunci: '${keyword}'.
+  const prompt = `Generate a microstock title for the keyword: '${keyword}'.
 
-**Batasan:** Panjang total judul akhir HARUS di bawah 180 karakter.
+**Constraint:** The final title's total length MUST be under 180 characters.
 
-Judul harus mengikuti struktur tiga bagian ini dengan tepat:
-1.  **Kalimat Pertama:** Frasa pendek yang menarik dengan subjek utama dan kata "pola".
-2.  **Kalimat Kedua:** Kalimat yang lebih deskriptif yang merinci subjek utama dan elemen pendukung.
-3.  **Bagian Ketiga:** Serangkaian kata kunci dan frasa deskriptif yang dipisahkan koma. Bagian ini harus menyertakan kata "seamless" dan "latar belakang vektor", dan menyarankan penggunaan seperti "tekstil" atau "cetak".
+The title must follow this exact three-part structure:
+1.  **First Sentence:** A short, engaging phrase with the main subject and the word "pattern".
+2.  **Second Sentence:** A more descriptive sentence detailing the main subject and supporting elements.
+3.  **Third Part:** A series of comma-separated descriptive keywords and phrases. This part should include the words "seamless" and "vector background", and suggest uses like "textile" or "print".
 
-**Tujuan:** Output akhir harus diformat persis seperti yang ditunjukkan pada contoh di bawah, dengan panjang di bawah 180 karakter. Judul harus terdengar alami, deskriptif, dan dioptimalkan untuk pencarian microstock.
+**Goal:** The final output should be formatted exactly as shown in the examples below, with a length under 180 characters. The title should sound natural, descriptive, and optimized for microstock search.
 
-**Contoh untuk input 'Kucing Gembira':**
-Pola kucing gembira. Karakter anak kucing lucu dengan hati dan bintang. Latar belakang vektor hewan peliharaan seamless, cetakan hewan kartun, ilustrasi grafis tekstil.
+**Example for 'Happy Cat' input:**
+Happy cat pattern. Cute kitten characters with hearts and stars. Seamless pet animal vector background, cartoon animal print, textile graphic illustration.
 
-**Contoh untuk input 'Pohon Natal':**
-Pola pohon Natal. Pohon liburan meriah dengan ornamen dan hadiah. Latar belakang vektor musim dingin seamless, ilustrasi hutan, untuk kain dan cetak.
+**Example for 'Christmas Tree' input:**
+Christmas tree pattern. Festive holiday trees with ornaments and gifts. Seamless winter vector background, forest illustration, for fabric and print.
 
-**Contoh untuk input 'Dedaunan, Holly':**
-Pola dedaunan musim dingin. Daun holly dan komposisi buah beri merah. Latar belakang vektor Natal seamless, cetakan botani meriah, untuk bungkus kado dan tekstil.`;
+**Example for 'Foliage, Holly' input:**
+Winter foliage pattern. Holly leaves and red berry composition. Seamless Christmas vector background, festive botanical print, for gift wrap and textile.`;
 
   try {
     const response = await ai.models.generateContent({
@@ -52,33 +52,33 @@ Pola dedaunan musim dingin. Daun holly dan komposisi buah beri merah. Latar bela
 const jsonPromptSchema = {
   type: Type.OBJECT,
   properties: {
-    concept: { type: Type.STRING, description: "Kalimat deskriptif singkat dengan 1 elemen utama dan 2 elemen pendukung dari judul. Tidak boleh mengandung kata 'seamless', 'pattern', atau 'illustration'." },
-    color: { type: Type.STRING, description: "Frasa deskriptif untuk palet warna lembut, kalem, pastel, non-gradien. Format: 'deskripsi (warna1, warna2, warna3, ...)'" },
-    background: { type: Type.STRING, description: "Frasa deskriptif untuk latar belakang satu warna yang HARUS menyertakan frasa 'solid single color'. Format: 'deskripsi, solid single color (warna)'" },
-    mood: { type: Type.STRING, description: "Daftar suasana hati yang dipisahkan koma, sesuai dengan gaya. Format: 'suasana1, suasana2, suasana3, ...'" },
-    style: { type: Type.STRING, description: "Satu nama gaya seni diikuti oleh 4 karakteristiknya, dipisahkan koma. Format: 'Nama Gaya, karakteristik1, karakteristik2, ...'" },
+    concept: { type: Type.STRING, description: "A short descriptive sentence with 1 main element and 2 supporting elements from the title. It must not contain the words 'seamless', 'pattern', or 'illustration'." },
+    color: { type: Type.STRING, description: "A descriptive phrase for a soft, muted, pastel, non-gradient color palette. Format: 'description (color1, color2, color3, ...)'" },
+    background: { type: Type.STRING, description: "A descriptive phrase for a single-color background that MUST include the phrase 'solid single color'. Format: 'description, solid single color (color)'" },
+    mood: { type: Type.STRING, description: "A comma-separated list of moods, fitting the style. Format: 'mood1, mood2, mood3, ...'" },
+    style: { type: Type.STRING, description: "One art style name followed by its 4 characteristics, comma-separated. Format: 'Style Name, characteristic1, characteristic2, ...'" },
   }
 };
 
 export const generateJsonPrompt = async (title: string, apiKey: string): Promise<JsonPrompt> => {
-    if (!apiKey) throw new Error("Kunci API belum diatur.");
+    if (!apiKey) throw new Error("API key is not set.");
     const ai = new GoogleGenAI({ apiKey });
 
-    const prompt = `Berdasarkan judul microstock "${title}", buat prompt JSON untuk generator gambar AI. Patuhi secara ketat skema yang disediakan dan aturan berikut:
+    const prompt = `Based on the microstock title "${title}", generate a JSON prompt for an AI image generator. Strictly adhere to the provided schema and the following rules:
 
-    1.  **concept**: Buat kalimat deskriptif menggunakan subjek utama dan dua elemen pendukung dari judul. JANGAN gunakan kata "seamless", "pattern", atau "illustration".
-        *   Contoh: "Anak kucing meriah yang lucu mengenakan topi Santa, hewan peliharaan musim dingin liburan."
-    2.  **color**: Jelaskan palet warna yang lembut, hangat, kalem, pastel, alami, dan non-gradien yang sesuai dengan tema judul.
-        *   Contoh: "nada musim dingin meriah yang lembut, hangat, kalem, pastel, alami, non-gradien (merah kalem, hijau hutan, krem, abu-abu muda, krem)"
-    3.  **background**: **Analisis judul untuk petunjuk tentang latar belakang (misalnya, 'di latar belakang gelap', 'latar belakang terang'). Buat deskripsi latar belakang yang cocok.** Jika judul tidak memberikan petunjuk, pilih warna yang cerah dan serasi. Deskripsi HARUS selalu satu warna dan HARUS menyertakan frasa persis "solid single color".
-        *   Contoh (jika judul menyiratkan kegelapan): "dalam, murung, solid single color (abu-abu arang)."
-        *   Contoh (default): "cerah, serasi, solid single color (biru es muda)."
-    4.  **mood**: Sebutkan beberapa suasana hati yang sesuai dengan gaya dan warna.
-        *   Contoh: "meriah, ceria, lucu, nyaman, menyenangkan, bahagia, sehat"
-    5.  **style**: Sebutkan satu gaya seni spesifik (misalnya, lukisan Gouache, Skandinavia, Kawaii) diikuti oleh empat karakteristik utamanya.
-        *   Contoh: "Lukisan guas, pigmen buram, hasil akhir matte, garis tebal"
+    1.  **concept**: Create a descriptive sentence using the main subject and two supporting elements from the title. DO NOT use the words "seamless", "pattern", or "illustration".
+        *   Example: "Cute festive kitten wearing a Santa hat, holiday winter pet."
+    2.  **color**: Describe a soft, warm, muted, pastel, natural, non-gradient color palette that fits the title's theme.
+        *   Example: "soft, warm, muted, pastel, natural, non-gradient festive winter tones (muted red, forest green, cream, light grey, beige)"
+    3.  **background**: **Analyze the title for clues about the background (e.g., 'on a dark background', 'light background'). Create a matching background description.** If the title provides no clues, pick a light, matching color. The description MUST always be a single color and MUST include the exact phrase "solid single color".
+        *   Example (if title implies dark): "deep, moody, solid single color (charcoal grey)."
+        *   Example (default): "light, matching, solid single color (pale ice blue)."
+    4.  **mood**: List several moods that fit the style and colors.
+        *   Example: "festive, cheerful, cute, cozy, playful, happy, wholesome"
+    5.  **style**: List one specific art style (e.g., Gouache painting, Scandinavian, Kawaii) followed by its four key characteristics.
+        *   Example: "Gouache painting, opaque pigments, matte finish, bold lines"
     
-    Seluruh respons harus berupa satu objek JSON yang valid dan panjangnya kurang dari 910 karakter.`;
+    The entire response must be a single, valid JSON object and be less than 910 characters long.`;
 
     try {
         const response = await ai.models.generateContent({
@@ -104,20 +104,20 @@ export const generateJsonPrompt = async (title: string, apiKey: string): Promise
 
 
 export const changeColor = async (currentPrompt: JsonPrompt, apiKey: string): Promise<Partial<JsonPrompt>> => {
-    if (!apiKey) throw new Error("Kunci API belum diatur.");
+    if (!apiKey) throw new Error("API key is not set.");
     const ai = new GoogleGenAI({ apiKey });
 
-    const prompt = `Berdasarkan konsep dan gaya prompt AI yang ada:
-    - Konsep: "${currentPrompt.concept}"
-    - Gaya: "${currentPrompt.style}"
+    const prompt = `Based on the existing AI prompt's concept and style:
+    - Concept: "${currentPrompt.concept}"
+    - Style: "${currentPrompt.style}"
     
-    Buat palet warna, latar belakang, dan suasana hati yang baru. Warna harus tetap lembut, kalem, pastel, dan non-gradien. Deskripsi latar belakang HARUS menyertakan frasa 'solid single color'.
-    Ikuti contoh format ini dengan ketat:
-    - "color": "nada musim dingin meriah yang lembut, hangat, kalem, pastel, alami, non-gradien (merah kalem, hijau hutan, krem, abu-abu muda, krem)"
-    - "background": "cerah, serasi, solid single color (biru es muda)."
-    - "mood": "meriah, ceria, lucu, nyaman, menyenangkan, bahagia, sehat"
+    Generate a new color palette, background, and mood. The colors should remain soft, muted, pastel, and non-gradient. The background description MUST include the phrase 'solid single color'.
+    Strictly follow this example format:
+    - "color": "soft, warm, muted, pastel, natural, non-gradient festive winter tones (muted red, forest green, cream, light grey, beige)"
+    - "background": "light, matching, solid single color (pale ice blue)."
+    - "mood": "festive, cheerful, cute, cozy, playful, happy, wholesome"
 
-    Kembalikan hanya objek JSON dengan field "color", "background", dan "mood".`;
+    Return only a JSON object with "color", "background", and "mood" fields.`;
 
     try {
         const response = await ai.models.generateContent({
@@ -142,20 +142,20 @@ export const changeColor = async (currentPrompt: JsonPrompt, apiKey: string): Pr
 };
 
 export const changeStyle = async (currentPrompt: JsonPrompt, apiKey: string): Promise<Partial<JsonPrompt>> => {
-    if (!apiKey) throw new Error("Kunci API belum diatur.");
+    if (!apiKey) throw new Error("API key is not set.");
     const ai = new GoogleGenAI({ apiKey });
     
-    const prompt = `Berdasarkan konsep prompt AI yang ada:
-    - Konsep: "${currentPrompt.concept}"
+    const prompt = `Based on the existing AI prompt's concept:
+    - Concept: "${currentPrompt.concept}"
     
-    Gaya saat ini adalah "${currentPrompt.style}". Buat gaya yang sama sekali berbeda, bersama dengan palet warna, latar belakang, dan suasana hati baru yang cocok.
-    Ikuti contoh format ini dengan ketat:
-    - "style": Satu gaya seni spesifik diikuti oleh empat karakteristik utamanya. Contoh: "Lukisan guas, pigmen buram, hasil akhir matte, garis tebal"
-    - "color": Frasa deskriptif untuk palet warna lembut non-gradien. Contoh: "nada musim dingin meriah yang lembut, hangat, kalem, pastel, alami, non-gradien (merah kalem, hijau hutan, krem, abu-abu muda, krem)"
-    - "background": Frasa deskriptif untuk latar belakang satu warna yang HARUS menyertakan frasa 'solid single color'. Contoh: "cerah, serasi, solid single color (biru es muda)."
-    - "mood": Daftar suasana hati yang cocok dengan gaya baru. Contoh: "meriah, ceria, lucu, nyaman, menyenangkan, bahagia, sehat"
+    The current style is "${currentPrompt.style}". Generate a completely different style, along with a new matching color palette, background, and mood.
+    Strictly follow this example format:
+    - "style": One specific art style followed by its four key characteristics. Example: "Gouache painting, opaque pigments, matte finish, bold lines"
+    - "color": A descriptive phrase for a soft non-gradient color palette. Example: "soft, warm, muted, pastel, natural, non-gradient festive winter tones (muted red, forest green, cream, light grey, beige)"
+    - "background": A descriptive phrase for a single-color background that MUST include the phrase 'solid single color'. Example: "light, matching, solid single color (pale ice blue)."
+    - "mood": A list of moods that fit the new style. Example: "festive, cheerful, cute, cozy, playful, happy, wholesome"
 
-    Kembalikan hanya objek JSON dengan field "style", "color", "background", dan "mood".`;
+    Return only a JSON object with "style", "color", "background", and "mood" fields.`;
     
     try {
         const response = await ai.models.generateContent({
