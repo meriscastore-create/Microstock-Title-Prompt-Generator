@@ -267,42 +267,42 @@ export const generateTitle = async (keyword: string, apiKey: string): Promise<st
   if (!apiKey) throw new Error("API key is not set.");
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `You are an expert microstock title generator. Your primary goal is to create SEO-optimized titles for seamless patterns that generate many relevant keywords in tools like mykeyworder. You must act like a creative director, not just a keyword assembler.
+  const prompt = `You are a world-class microstock SEO and title generation expert. Your task is to generate a descriptive, high-quality title for a vector illustration based on user keywords.
 
-**Input:** A user will provide keywords, for example: '${keyword}'.
+**The Structure:**
+The title must consist of **three distinct parts, separated by a period (.)**. You must use words and phrases that are popular and common in the microstock industry.
 
-**Core Task:** Analyze the input keywords to understand the core theme. Then, creatively introduce 2-3 NEW, thematically related, and highly searchable keywords to build a rich, descriptive title.
+**User Keywords:** '${keyword}'
 
-**The Golden Rule (Follow this example precisely):**
-*   **User Input:** \`Joyful, Christmas, Festive\`
-*   **Analysis:** The theme is clearly Christmas. What are other concrete, searchable elements related to a joyful, festive Christmas? Gingerbread, candy canes, snow.
-*   **Perfect Output:** \`Festive Christmas Pattern Vector. Seamless Pattern Joyful Background with Gingerbread, Candy Canes and Snow for Textile Print background.\`
-*   **Why it's perfect:** It uses the original keywords naturally. It adds new, high-value keywords (\`Gingerbread\`, \`Candy Canes\`, \`Snow\`, \`Textile Print\`). The result is a descriptive scene, not a forced list. This is the quality you MUST replicate.
+**Your Process:**
 
-**Strict Structure:**
-The title MUST follow this two-part structure:
-1.  **Part 1:** A short, impactful phrase using the main keywords. It MUST end with \`Pattern Vector.\`.
-2.  **Part 2:** A longer, descriptive sentence. It MUST start with \`Seamless Pattern\`. It must use any remaining keywords and introduce the NEW, related elements you brainstormed. This part describes the scene and MUST end with \`background.\`.
+1.  **Analyze Keywords:** Identify the main subject, theme, or event from the user's keywords.
+2.  **Construct the 3-Part Title:**
 
-**Constraints:**
-*   The final title's total length MUST be under 160 characters.
-*   The words "seamless" and "pattern" MUST be present as described in the structure.
-*   **AVOID FILLER WORDS:** Do not use words like 'a', 'the', 'of', 'during'. Every word should have SEO value.
+    *   **Part 1: Thematic Statement.**
+        *   This is a short, powerful phrase that captures the theme, event, or sub-category.
+        *   It can optionally include the word "pattern" if it fits naturally.
+        *   *Example for 'Christmas, Festive':* "Festive Christmas Holiday Celebration."
 
-**Applying the Golden Rule to Other Inputs:**
+    *   **Part 2: Descriptive Core.**
+        *   This is the most important part. It describes the visual elements of the scene.
+        *   It **MUST** contain the words "seamless pattern".
+        *   It **MUST** mention the main subject from the keywords PLUS 2-3 other relevant supporting elements.
+        *   **Crucially:** If the user's keywords are broad (like 'Christmas'), you MUST brainstorm and add specific, popular elements (e.g., 'gingerbread', 'candy canes', 'snowflakes').
+        *   *Example:* "Seamless pattern of cute hand drawn gingerbread cookies, candy canes, and Christmas trees."
 
-*   **Input: \`pine, forest, snowfall, silence\`**
-    *   **Theme:** A quiet, snowy winter forest.
-    *   **Brainstorm New Elements:** What else is in a winter forest? Maybe \`deer\`, \`winter berries\`, \`frozen lake\`.
-    *   **Good Output Example:** \`Silent Pine Forest Pattern Vector. Seamless Snowfall Pattern with Deer and Winter Berries in a Winter Forest background.\`
+    *   **Part 3: Application and Style.**
+        *   Describe the potential uses and the style of the illustration.
+        *   Mention common uses like 'textile print', 'wrapping paper', 'fabric design', 'holiday background', 'wallpaper'.
+        *   Mention a relevant style like 'cute cartoon vector', 'flat design', 'vintage style'.
+        *   *Example:* "Cute cartoon vector illustration for textile print, fabric, and festive wrapping paper background."
 
-*   **Input: \`Christmas Tree\`**
-    *   **Theme:** Christmas Tree.
-    *   **Brainstorm New Elements:** What goes with a Christmas tree? \`Gifts\`, \`ornaments\`, \`stars\`.
-    *   **Good Output Example:** \`Christmas Tree Pattern Vector. Seamless Festive Pattern with Christmas Trees, Gifts, and Stars background.\`
+**Gold Standard Example:**
+*   **User Keywords:** \`Joyful, Christmas, Festive\`
+*   **Resulting Title:** \`Joyful Christmas Festive Celebration. Seamless pattern of gingerbread cookies, candy canes, and snowflakes. Vector illustration for textile print, wrapping paper, and holiday backgrounds.\`
 
 **Your Mission:**
-Generate one single title for the input '${keyword}'. Follow the structure, apply the creative brainstorming process shown in the Golden Rule, and ensure the result is a high-quality, keyword-rich title under 160 characters.`;
+Apply this exact process to the keywords: '${keyword}'. Generate one single, high-quality, three-part title.`;
 
   try {
     const response = await ai.models.generateContent({
