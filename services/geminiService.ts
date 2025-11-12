@@ -91,7 +91,7 @@ const PROMPT_TEMPLATES = [
       style: "style vector detail : Flat Graphic (Simplified Shapes, No Depth, Solid Forms, Clean Edges, Modern Design Look)"
     },
     {
-      color: "non-gradient color, Balanced Tone, Clear Separation, Visual Harmony, Consistent Saturation, Clean Finish",
+      color: "non-gradient color, Balanced Tone, Clear Separation, Visual Harmony, Consistent SatURATION, Clean Finish",
       background: "solid single color, Smooth Plane, Simple Focus, Minimal Texture, Clear Layout, Stable Composition",
       mood: "Elegant, Calm, Artistic, Precise, Contemporary",
       style: "style vector detail : Line Art (Continuous Lines, Minimal Detail, Simplified Forms, Expressive Curves, Elegant Flow)"
@@ -267,41 +267,42 @@ export const generateTitle = async (keyword: string, apiKey: string): Promise<st
   if (!apiKey) throw new Error("API key is not set.");
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `You are an expert microstock title generator, specializing in creating highly effective, SEO-optimized titles for seamless patterns. Your task is to generate a title based on the user's input: '${keyword}'.
+  const prompt = `You are an expert microstock title generator. Your primary goal is to create SEO-optimized titles for seamless patterns that generate many relevant keywords in tools like mykeyworder. You must act like a creative director, not just a keyword assembler.
 
-**Core Goal:** Produce a title that is packed with relevant, searchable keywords, reads naturally, and is perfectly structured for microstock platforms.
+**Input:** A user will provide keywords, for example: '${keyword}'.
+
+**Core Task:** Analyze the input keywords to understand the core theme. Then, creatively introduce 2-3 NEW, thematically related, and highly searchable keywords to build a rich, descriptive title.
+
+**The Golden Rule (Follow this example precisely):**
+*   **User Input:** \`Joyful, Christmas, Festive\`
+*   **Analysis:** The theme is clearly Christmas. What are other concrete, searchable elements related to a joyful, festive Christmas? Gingerbread, candy canes, snow.
+*   **Perfect Output:** \`Festive Christmas Pattern Vector. Seamless Pattern Joyful Background with Gingerbread, Candy Canes and Snow for Textile Print background.\`
+*   **Why it's perfect:** It uses the original keywords naturally. It adds new, high-value keywords (\`Gingerbread\`, \`Candy Canes\`, \`Snow\`, \`Textile Print\`). The result is a descriptive scene, not a forced list. This is the quality you MUST replicate.
+
+**Strict Structure:**
+The title MUST follow this two-part structure:
+1.  **Part 1:** A short, impactful phrase using the main keywords. It MUST end with \`Pattern Vector.\`.
+2.  **Part 2:** A longer, descriptive sentence. It MUST start with \`Seamless Pattern\`. It must use any remaining keywords and introduce the NEW, related elements you brainstormed. This part describes the scene and MUST end with \`background.\`.
 
 **Constraints:**
 *   The final title's total length MUST be under 160 characters.
-*   The title MUST contain the words "seamless" and "pattern".
+*   The words "seamless" and "pattern" MUST be present as described in the structure.
+*   **AVOID FILLER WORDS:** Do not use words like 'a', 'the', 'of', 'during'. Every word should have SEO value.
 
-**Structure (Strictly Enforced):**
-The title MUST follow this exact four-part structure, with each part separated by a period:
-1.  **Part 1:** A keyword-rich phrase identifying the main theme, followed by "Pattern Vector.".
-2.  **Part 2:** A descriptive sentence starting with "Seamless", expanding on the theme with more high-value keywords.
-3.  **Part 3:** A short phrase providing additional context or atmosphere, using strong keywords.
-4.  **Part 4:** The phrase "seamless pattern Background.".
+**Applying the Golden Rule to Other Inputs:**
 
-**Keyword Optimization Rules (Crucial):**
-*   **Maximize Keyword Value:** Every word should be a potential search term. Prioritize concrete nouns (pine, forest, tree) and strong descriptive adjectives (winter, silent, cold).
-*   **Avoid Filler Words:** Eliminate or minimize the use of non-searchable words like 'a', 'the', 'with', 'during', 'of', 'and'. The goal is to maximize the ratio of keywords to total words.
-*   **Natural Keyword Combination:** Combine keywords into logical, powerful phrases. Think like a user searching for an image. They would search for "pine forest snow" not "forest during a snowfall".
-*   **Smart Distribution:** Distribute the user's keywords and related concepts logically across the first three parts of the title. Do not force them all into one part.
+*   **Input: \`pine, forest, snowfall, silence\`**
+    *   **Theme:** A quiet, snowy winter forest.
+    *   **Brainstorm New Elements:** What else is in a winter forest? Maybe \`deer\`, \`winter berries\`, \`frozen lake\`.
+    *   **Good Output Example:** \`Silent Pine Forest Pattern Vector. Seamless Snowfall Pattern with Deer and Winter Berries in a Winter Forest background.\`
 
-**Input Handling with New Examples:**
+*   **Input: \`Christmas Tree\`**
+    *   **Theme:** Christmas Tree.
+    *   **Brainstorm New Elements:** What goes with a Christmas tree? \`Gifts\`, \`ornaments\`, \`stars\`.
+    *   **Good Output Example:** \`Christmas Tree Pattern Vector. Seamless Festive Pattern with Christmas Trees, Gifts, and Stars background.\`
 
-*   **Simple Keyword (e.g., 'Christmas Tree'):**
-    *   *Good Title:* \`Christmas Tree Pattern Vector. Seamless Festive Christmas Tree with Reindeer. Winter Holiday Celebration. seamless pattern Background.\`
-
-*   **Comma-Separated Keywords (e.g., 'pine, forest, snowfall, silence'):** This is the most important rule. Analyze the keywords and compose a scene using strong, searchable terms.
-    *   **Your Goal:** Create a keyword-dense title that sounds professional.
-    *   **AVOID (Old Method):** \`Silent Pine Forest Pattern Vector. Seamless Pattern of a Pine Forest During a Gentle Snowfall. Quiet Winter Landscape. seamless pattern Background.\` - This uses weak filler words ('During', 'a', 'of') and has a less impactful structure.
-    *   **DO THIS (New Method):** For the input 'pine, forest, snowfall, silence', a much better title is: \`Pine Forest Snowfall Pattern Vector. Seamless Winter Pine Forest Texture. Silent Nature Landscape. seamless pattern Background.\`
-        *   *Analysis:* Part 1 combines three main keywords into a powerful phrase. Part 2 adds a relevant keyword ('Winter') and a useful descriptor ('Texture'). Part 3 uses 'Silent' and 'Nature Landscape' for atmospheric keywords. There are no filler words. Every word is a potential keyword.
-
-*   **Long Phrase (e.g., 'A detailed illustration of vintage flowers'):** Extract the core keywords ('vintage', 'flowers', 'illustration') and build a new, optimized title following the structure and keyword rules.
-
-**Final Output:** Deliver a single string, formatted exactly as described, under 160 characters, and optimized for maximum discoverability on microstock platforms.`;
+**Your Mission:**
+Generate one single title for the input '${keyword}'. Follow the structure, apply the creative brainstorming process shown in the Golden Rule, and ensure the result is a high-quality, keyword-rich title under 160 characters.`;
 
   try {
     const response = await ai.models.generateContent({
