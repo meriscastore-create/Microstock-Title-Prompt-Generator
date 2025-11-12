@@ -272,44 +272,58 @@ export const generateTitle = async (keyword: string, apiKey: string): Promise<st
 **The Structure:**
 The title must consist of **three distinct parts, separated by a period (.)**. You must use words and phrases that are popular and common in the microstock industry.
 
+**!! CRITICAL CONSTRAINTS !!**
+1. The entire generated title **MUST NOT EXCEED 170 characters** in total. Be concise.
+2. The final output must be a clean string, with **NO MARKDOWN FORMATTING** like asterisks (*) or backticks (\`).
+
 **User Keywords:** '${keyword}'
 
 **Your Process:**
 
-1.  **Analyze Keywords:** Identify the main subject, theme, or event from the user's keywords.
+1.  **Analyze Keywords:** Identify the main subject, and overall idea from the user's keywords.
 2.  **Construct the 3-Part Title:**
 
     *   **Part 1: Thematic Statement.**
-        *   This is a short, powerful phrase that captures the theme, event, or sub-category.
-        *   It can optionally include the word "pattern" if it fits naturally.
+        *   This is a short, powerful phrase that captures the main idea or occasion.
+        *   **Crucially, DO NOT use instructional words like "theme", "event", or "sub-category" in your actual response.**
         *   *Example for 'Christmas, Festive':* "Festive Christmas Holiday Celebration."
 
     *   **Part 2: Descriptive Core.**
-        *   This is the most important part. It describes the visual elements of the scene.
-        *   It **MUST** contain the words "seamless pattern".
+        *   This part describes the visual elements. It **MUST** contain the word "seamless".
+        *   **CRITICAL: Your primary goal is to create VARIETY. Do not use the same structure for every title.**
+        *   **CRITICAL: DO NOT start this phrase with the article 'A'.**
         *   It **MUST** mention the main subject from the keywords PLUS 2-3 other relevant supporting elements.
-        *   **Crucially:** If the user's keywords are broad (like 'Christmas'), you MUST brainstorm and add specific, popular elements (e.g., 'gingerbread', 'candy canes', 'snowflakes').
-        *   *Example:* "Seamless pattern of cute hand drawn gingerbread cookies, candy canes, and Christmas trees."
+        *   **CRITICAL: List elements directly. DO NOT use descriptive adjectives like 'flying', 'glowing', or 'shimmering'.** For example, use "reindeer, moon, and stars", not "flying reindeer, glowing moon, and shimmering stars".
+        *   If the user's keywords are broad (like 'Christmas'), you MUST brainstorm and add specific, popular elements (e.g., 'gingerbread', 'candy canes', 'snowflakes').
+        *   **Here is a list of excellent, varied structures. Use them as inspiration to create diverse and natural-sounding descriptions:**
+            *   "Seamless [main subject] pattern with [element 2] and [element 3]."
+            *   "Seamless pattern featuring [main subject], [element 2], and [element 3]."
+            *   "Seamless [main subject] and [element 2] pattern with [element 3]."
+            *   "Seamless [main subject] background with [element 2] and [element 3] accents."
+            *   "Vector seamless pattern of [main subject] with [element 2] and [element 3]."
+            *   "Seamless illustration pattern of [main subject], [element 2], and [element 3]."
+            *   "Seamless [main subject] print featuring [element 2] and [element 3]."
+            *   "Seamless pattern of [main subject] with [element 2] and [element 3] details."
+            *   "Seamless [main subject] motif with [element 2] and [element 3]."
+            *   "Seamless pattern design with [main subject], [element 2], and [element 3]."
+        *   *Example based on 'Christmas Tree':* "Seamless Christmas tree pattern with gingerbread cookies and candy canes."
 
-    *   **Part 3: Application and Style.**
-        *   Describe the potential uses and the style of the illustration.
+    *   **Part 3: Application Only.**
+        *   Describe **ONLY** the potential uses for the illustration. **DO NOT mention the style** (e.g., do not use words like 'vector', 'cartoon', 'whimsical', 'flat design').
         *   Mention common uses like 'textile print', 'wrapping paper', 'fabric design', 'holiday background', 'wallpaper'.
-        *   Mention a relevant style like 'cute cartoon vector', 'flat design', 'vintage style'.
-        *   *Example:* "Cute cartoon vector illustration for textile print, fabric, and festive wrapping paper background."
-
-**Gold Standard Example:**
-*   **User Keywords:** \`Joyful, Christmas, Festive\`
-*   **Resulting Title:** \`Joyful Christmas Festive Celebration. Seamless pattern of gingerbread cookies, candy canes, and snowflakes. Vector illustration for textile print, wrapping paper, and holiday backgrounds.\`
+        *   *Example:* "For textile print, fabric design, and festive wrapping paper background."
 
 **Your Mission:**
-Apply this exact process to the keywords: '${keyword}'. Generate one single, high-quality, three-part title.`;
+Apply this exact process to the keywords: '${keyword}'. Generate one single, high-quality, three-part title, strictly adhering to all critical constraints.`;
 
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt
     });
-    return response.text.trim();
+    // Clean up any potential markdown that might slip through and ensure spacing after periods.
+    const title = response.text.trim().replace(/\*/g, '');
+    return title.replace(/\.(?!\s|$)/g, '. ');
   } catch (error) {
     handleApiError(error);
   }

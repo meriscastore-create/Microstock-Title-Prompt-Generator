@@ -237,7 +237,7 @@ const App: React.FC = () => {
     };
 
     const titleCharCount = generatedTitle.length;
-    const titleCharCountColor = titleCharCount > 160 ? 'text-red-400' : 'text-green-400';
+    const titleCharCountColor = titleCharCount > 170 ? 'text-red-400' : 'text-green-400';
     const jsonCharCount = jsonString.length;
     const jsonCharCountColor = jsonCharCount > 910 ? 'text-red-400' : 'text-green-400';
     const gridLayoutClass = showIframe ? 'lg:grid-cols-2' : 'lg:grid-cols-1';
@@ -303,7 +303,7 @@ const App: React.FC = () => {
                             <div className="bg-dark-card shadow-lg rounded-lg p-6 border border-dark-border animate-fade-in">
                                 <div className="flex justify-between items-center mb-4">
                                     <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Generated Title</h2>
-                                    <span className={`text-sm font-mono ${titleCharCountColor}`}>{titleCharCount} / 160 characters</span>
+                                    <span className={`text-sm font-mono ${titleCharCountColor}`}>{titleCharCount} / 170 characters</span>
                                 </div>
                                 <p className="text-medium-text mb-4 bg-gray-800 p-4 rounded-md">{generatedTitle}</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
