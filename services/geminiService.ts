@@ -267,35 +267,37 @@ export const generateTitle = async (keyword: string, apiKey: string): Promise<st
   if (!apiKey) throw new Error("API key is not set.");
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `You are an expert microstock title generator. Your task is to generate an SEO-optimized title based on the user's input: '${keyword}'.
+  const prompt = `You are an expert microstock title generator, specializing in creating creative, descriptive, and SEO-optimized titles. Your task is to generate a title based on the user's input: '${keyword}'.
+
+**Core Goal:** Produce a title that is natural-sounding, avoids keyword stuffing, and is highly relevant for microstock searches, while strictly following the required structure.
 
 **Constraints:**
 *   The final title's total length MUST be under 160 characters.
-*   The title MUST contain the words "seamless" and "pattern". They will naturally be included if you follow the structure below.
+*   The title MUST contain the words "seamless" and "pattern".
 
 **Structure (Strictly Enforced):**
 The title MUST follow this exact four-part structure, with each part separated by a period:
-1.  **Part 1:** A short phrase identifying the main element, followed by "Pattern Vector.". It must end with a period.
-2.  **Part 2:** A more descriptive sentence starting with "Seamless", including the main element, "Pattern", and supporting elements. It must end with a period.
-3.  **Part 3:** A short phrase providing additional context or theme (e.g., 'Winter landscape.'). It must end with a period.
-4.  **Part 4:** A final phrase for context, such as "seamless pattern Background.". It must end with a period.
+1.  **Part 1:** Identifies the main theme or element, followed by "Pattern Vector.".
+2.  **Part 2:** A descriptive sentence starting with "Seamless", expanding on the theme with more detail.
+3.  **Part 3:** A short phrase providing additional context or atmosphere.
+4.  **Part 4:** The phrase "seamless pattern Background.".
 
-**Example of the required structure and punctuation:**
-\`Christmas Tree Pattern Vector. Seamless Christmas Tree Pattern with reindeer and mountain. Winter landscape. seamless pattern Background.\`
+**Input Handling and Creative Integration:**
 
-**Breakdown of the Example:**
-*   Part 1: \`Christmas Tree Pattern Vector.\` (Main element)
-*   Part 2: \`Seamless Christmas Tree Pattern with reindeer and mountain.\` (Descriptive sentence with supporting elements)
-*   Part 3: \`Winter landscape.\` (Contextual keywords)
-*   Part 4: \`seamless pattern Background.\` (Final keywords)
+*   **Simple Keyword (e.g., 'Christmas Tree'):** Use this as the main subject.
+    *   *Example Title:* \`Christmas Tree Pattern Vector. Seamless Christmas Tree Pattern with reindeer and mountain. Winter landscape. seamless pattern Background.\`
 
-**Input Handling Rules:**
-*   **Typo Correction:** If the input seems to have a typo (e.g., 'Chrismas Tre'), interpret the intended meaning ('Christmas Tree') and use the correct term.
-*   **Comma-Separated Keywords (e.g., 'cat, playful, cartoon'):** Naturally integrate ALL of these keywords into the four-part title. The final title must be coherent, sound natural, and be easily understood by SEO.
-*   **Long Phrase/Title (e.g., 'A detailed illustration of vintage flowers'):** Do not copy it. Analyze its core concepts and generate a *new, similar* title that strictly follows the required four-part structure.
-*   **Simple Keyword (e.g., 'Christmas Tree'):** Use it as the main subject.
+*   **Comma-Separated Keywords (e.g., 'pine, forest, snowfall, silence'):** This is the most important rule. Do NOT treat the entire list as a single subject. Instead, think like an artist composing a scene. Identify the primary subject (e.g., 'pine forest') and use the other keywords as descriptors, actions, or mood-setters, distributing them naturally across the four parts of the title.
+    *   **Your Goal:** Weave the keywords into a coherent and appealing description.
+    *   **AVOID THIS (Bad Example):** \`Pine, forest, snowfall, silence Pattern Vector.\` - This is unnatural and spammy.
+    *   **DO THIS (Good Example):** For the input 'pine, forest, snowfall, silence', a good title would be: \`Silent Pine Forest Pattern Vector. Seamless Pattern of a Pine Forest During a Gentle Snowfall. Quiet Winter Landscape. seamless pattern Background.\`
+        *   *Analysis:* 'pine' and 'forest' form the main subject. 'silence' is used as an adjective ('Silent', 'Quiet'). 'snowfall' is integrated into the descriptive sentence. All keywords are used, but the result is elegant and makes sense.
 
-**Goal:** The final output must be a single block of text, formatted exactly as described, with a total length under 160 characters. The title must be highly descriptive and packed with relevant keywords for microstock platforms.`;
+*   **Long Phrase/Title (e.g., 'A detailed illustration of vintage flowers'):** Analyze its core concepts and generate a *new* title that follows the four-part structure, capturing the essence of the phrase.
+
+*   **Typo Correction:** If the input seems to have a typo, interpret the intended meaning and use the correct term.
+
+**Final Output:** The result must be a single block of text, formatted exactly as described, under 160 characters, and optimized for discoverability on microstock platforms.`;
 
   try {
     const response = await ai.models.generateContent({
