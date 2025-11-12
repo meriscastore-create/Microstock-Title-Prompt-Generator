@@ -70,7 +70,7 @@ const jsonPromptSchema = {
     color: { type: Type.STRING, description: "A descriptive phrase for a vibrant, strong, enhanced, non-gradient color palette. Format: 'description of colors'" },
     background: { type: Type.STRING, description: "A descriptive phrase for a clean, single-color background that MUST include the phrase 'solid single color'. Format: 'description, solid single color'" },
     mood: { type: Type.STRING, description: "A comma-separated list of moods, fitting the style. Format: 'mood1, mood2, mood3, ...'" },
-    style: { type: Type.STRING, description: "One art style name followed by its 4 characteristics, comma-separated. Format: 'Style Name, characteristic1, characteristic2, ...'" },
+    style: { type: Type.STRING, description: "A formatted string describing the art style. Format: 'Style Vector minimalist Pure : [Style Name] ([Characteristic 1], [Characteristic 2]), [Characteristic 3], [Characteristic 4]'." },
   }
 };
 
@@ -88,8 +88,9 @@ export const generateJsonPrompt = async (title: string, apiKey: string): Promise
         *   Example: "clean, complementary, solid single color background"
     4.  **mood**: List several moods that fit the style and colors.
         *   Example: "festive, cheerful, cute, cozy, playful, happy, wholesome"
-    5.  **style**: List one specific art style (e.g., Gouache painting, Scandinavian, Kawaii) followed by its four key characteristics.
-        *   Example: "Gouache painting, opaque pigments, matte finish, bold lines"
+    5.  **style**: Choose a specific, vector-friendly art style (elegant, minimalist, or abstract), suitable for vectorization. AVOID painterly styles like watercolor or oil painting. The format MUST be exactly: \`Style Vector minimalist Pure : [Style Name] ([Characteristic 1], [Characteristic 2]), [Characteristic 3], [Characteristic 4]\`.
+        *   Good Style Examples: 'Minimalist Line Art', 'Art Deco', 'Memphis Group', 'Synthwave Neon', 'Flat Isometric', 'Japanese Zen Minimalism'.
+        *   Example Format: "Style Vector minimalist Pure : Art Deco (Glamorous, Geometric), symmetrical, elegant"
     
     The entire response must be a single, valid JSON object and be less than 910 characters long.`;
 
@@ -125,7 +126,7 @@ export const changeColor = async (currentPrompt: JsonPrompt, apiKey: string): Pr
     - Style: "${currentPrompt.style}"
     
     Generate a new color palette, background, and mood.
-    - **color**: The color palette must be vibrant, strong, and non-gradient. DO NOT mention specific colors.
+    - **color**: The color palette must be vibrant, strong, and non-gradient. Describe a diverse palette and avoid overusing "warm" tones. DO NOT mention specific colors.
     - **background**: The background description MUST be for a clean, single-color background and include the phrase 'solid single color'. DO NOT mention specific colors.
     
     Strictly follow this example format:
@@ -162,16 +163,36 @@ export const changeStyle = async (currentPrompt: JsonPrompt, apiKey: string): Pr
     const ai = new GoogleGenAI({ apiKey });
     
     const prompt = `Based on the existing AI prompt's concept:
-    - Concept: "${currentPrompt.concept}"
-    
-    The current style is "${currentPrompt.style}". Generate a completely different style, along with a new matching color palette, background, and mood.
-    Strictly follow this example format:
-    - "style": One specific art style followed by its four key characteristics. Example: "Gouache painting, opaque pigments, matte finish, bold lines"
-    - "color": A descriptive phrase for a vibrant, strong, non-gradient color palette. DO NOT mention specific colors. Example: "strong, vibrant, and enhanced cartoon colors"
-    - "background": A descriptive phrase for a clean, single-color background that MUST include the phrase 'solid single color'. DO NOT mention specific colors. Example: "clean, bold, solid single color background"
-    - "mood": A list of moods that fit the new new style. Example: "energetic, playful, dynamic, happy"
+- Concept: "${currentPrompt.concept}"
 
-    Return only a JSON object with "style", "color", "background", and "mood" fields.`;
+The current style is "${currentPrompt.style}". Generate a completely different style that is elegant, minimalist, or abstract and suitable for vectorization.
+AVOID painterly styles like watercolor, oil painting, or heavy textures.
+
+Here are some examples of desirable styles for inspiration:
+- Minimalist Line Art (Sophisticated Simplicity)
+- Bauhaus Simplified (Functional, Primary Shapes)
+- Art Deco (Glamorous & Geometric)
+- Memphis Group (Bold, Geometric, Playful)
+- Scandinavian (Nordic Holiday Touch)
+- Modern Folk Minimalism (Nordic-Boho Fusion)
+- Synthwave Neon (Electric, Glowing Lines)
+- Flat Isometric (Simplified flat)
+- Abstract Organic (Fluid & Natural Forms)
+- Japanese Zen Minimalism
+- Swiss International Style - Pure Icon
+- Continuous Line Art (Fluid & Expressive)
+- Cyberpunk Outline (Gritty, High-Tech Details)
+- Comic Book Style (Dynamic & Expressive)
+- Pop Art (Vibrant & Bold)
+
+Also generate a new matching color palette, background, and mood.
+Strictly follow this example format:
+- "style": A specific art style with four characteristics. The format must be: 'Style Vector minimalist Pure : [Style Name] ([Characteristic 1], [Characteristic 2]), [Characteristic 3], [Characteristic 4]'. Example: "Style Vector minimalist Pure : Art Deco (Glamorous, Geometric), symmetrical, elegant"
+- "color": A descriptive phrase for a vibrant, strong, non-gradient color palette. Avoid overusing 'warm' tones. DO NOT mention specific colors. Example: "cool and sophisticated jewel tones"
+- "background": A descriptive phrase for a clean, single-color background that MUST include the phrase 'solid single color'. DO NOT mention specific colors. Example: "clean, bold, solid single color background"
+- "mood": A list of moods that fit the new new style. Example: "elegant, luxurious, sophisticated, modern"
+
+Return only a JSON object with "style", "color", "background", and "mood" fields.`;
     
     try {
         const response = await ai.models.generateContent({

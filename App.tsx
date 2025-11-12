@@ -335,11 +335,11 @@ const App: React.FC = () => {
                                     <code>{jsonString}</code>
                                 </pre>
                                 <div className="mt-4 flex flex-col sm:flex-row gap-4">
-                                    <button onClick={() => handleModifyPrompt('color')} disabled={!!isModifying} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:opacity-50">
-                                        {isModifying === 'color' ? <Spinner className="mr-2"/> : <MagicWandIcon />} Change Color
+                                    <button onClick={() => handleModifyPrompt('color')} disabled={!!isModifying} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:bg-gray-600 disabled:cursor-not-allowed">
+                                        {isModifying === 'color' ? <Spinner /> : <MagicWandIcon />} Change Color
                                     </button>
-                                    <button onClick={() => handleModifyPrompt('style')} disabled={!!isModifying} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:opacity-50">
-                                       {isModifying === 'style' ? <Spinner className="mr-2"/> : <MagicWandIcon />} Change Style
+                                    <button onClick={() => handleModifyPrompt('style')} disabled={!!isModifying} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:bg-gray-600 disabled:cursor-not-allowed">
+                                       {isModifying === 'style' ? <Spinner /> : <MagicWandIcon />} Change Style
                                     </button>
                                     <button onClick={() => handleCopy(jsonString, 'prompt')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
                                         <CopyIcon /> Copy JSON
