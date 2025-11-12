@@ -267,9 +267,9 @@ export const generateTitle = async (keyword: string, apiKey: string): Promise<st
   if (!apiKey) throw new Error("API key is not set.");
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `You are an expert microstock title generator, specializing in creating creative, descriptive, and SEO-optimized titles. Your task is to generate a title based on the user's input: '${keyword}'.
+  const prompt = `You are an expert microstock title generator, specializing in creating highly effective, SEO-optimized titles for seamless patterns. Your task is to generate a title based on the user's input: '${keyword}'.
 
-**Core Goal:** Produce a title that is natural-sounding, avoids keyword stuffing, and is highly relevant for microstock searches, while strictly following the required structure.
+**Core Goal:** Produce a title that is packed with relevant, searchable keywords, reads naturally, and is perfectly structured for microstock platforms.
 
 **Constraints:**
 *   The final title's total length MUST be under 160 characters.
@@ -277,27 +277,31 @@ export const generateTitle = async (keyword: string, apiKey: string): Promise<st
 
 **Structure (Strictly Enforced):**
 The title MUST follow this exact four-part structure, with each part separated by a period:
-1.  **Part 1:** Identifies the main theme or element, followed by "Pattern Vector.".
-2.  **Part 2:** A descriptive sentence starting with "Seamless", expanding on the theme with more detail.
-3.  **Part 3:** A short phrase providing additional context or atmosphere.
+1.  **Part 1:** A keyword-rich phrase identifying the main theme, followed by "Pattern Vector.".
+2.  **Part 2:** A descriptive sentence starting with "Seamless", expanding on the theme with more high-value keywords.
+3.  **Part 3:** A short phrase providing additional context or atmosphere, using strong keywords.
 4.  **Part 4:** The phrase "seamless pattern Background.".
 
-**Input Handling and Creative Integration:**
+**Keyword Optimization Rules (Crucial):**
+*   **Maximize Keyword Value:** Every word should be a potential search term. Prioritize concrete nouns (pine, forest, tree) and strong descriptive adjectives (winter, silent, cold).
+*   **Avoid Filler Words:** Eliminate or minimize the use of non-searchable words like 'a', 'the', 'with', 'during', 'of', 'and'. The goal is to maximize the ratio of keywords to total words.
+*   **Natural Keyword Combination:** Combine keywords into logical, powerful phrases. Think like a user searching for an image. They would search for "pine forest snow" not "forest during a snowfall".
+*   **Smart Distribution:** Distribute the user's keywords and related concepts logically across the first three parts of the title. Do not force them all into one part.
 
-*   **Simple Keyword (e.g., 'Christmas Tree'):** Use this as the main subject.
-    *   *Example Title:* \`Christmas Tree Pattern Vector. Seamless Christmas Tree Pattern with reindeer and mountain. Winter landscape. seamless pattern Background.\`
+**Input Handling with New Examples:**
 
-*   **Comma-Separated Keywords (e.g., 'pine, forest, snowfall, silence'):** This is the most important rule. Do NOT treat the entire list as a single subject. Instead, think like an artist composing a scene. Identify the primary subject (e.g., 'pine forest') and use the other keywords as descriptors, actions, or mood-setters, distributing them naturally across the four parts of the title.
-    *   **Your Goal:** Weave the keywords into a coherent and appealing description.
-    *   **AVOID THIS (Bad Example):** \`Pine, forest, snowfall, silence Pattern Vector.\` - This is unnatural and spammy.
-    *   **DO THIS (Good Example):** For the input 'pine, forest, snowfall, silence', a good title would be: \`Silent Pine Forest Pattern Vector. Seamless Pattern of a Pine Forest During a Gentle Snowfall. Quiet Winter Landscape. seamless pattern Background.\`
-        *   *Analysis:* 'pine' and 'forest' form the main subject. 'silence' is used as an adjective ('Silent', 'Quiet'). 'snowfall' is integrated into the descriptive sentence. All keywords are used, but the result is elegant and makes sense.
+*   **Simple Keyword (e.g., 'Christmas Tree'):**
+    *   *Good Title:* \`Christmas Tree Pattern Vector. Seamless Festive Christmas Tree with Reindeer. Winter Holiday Celebration. seamless pattern Background.\`
 
-*   **Long Phrase/Title (e.g., 'A detailed illustration of vintage flowers'):** Analyze its core concepts and generate a *new* title that follows the four-part structure, capturing the essence of the phrase.
+*   **Comma-Separated Keywords (e.g., 'pine, forest, snowfall, silence'):** This is the most important rule. Analyze the keywords and compose a scene using strong, searchable terms.
+    *   **Your Goal:** Create a keyword-dense title that sounds professional.
+    *   **AVOID (Old Method):** \`Silent Pine Forest Pattern Vector. Seamless Pattern of a Pine Forest During a Gentle Snowfall. Quiet Winter Landscape. seamless pattern Background.\` - This uses weak filler words ('During', 'a', 'of') and has a less impactful structure.
+    *   **DO THIS (New Method):** For the input 'pine, forest, snowfall, silence', a much better title is: \`Pine Forest Snowfall Pattern Vector. Seamless Winter Pine Forest Texture. Silent Nature Landscape. seamless pattern Background.\`
+        *   *Analysis:* Part 1 combines three main keywords into a powerful phrase. Part 2 adds a relevant keyword ('Winter') and a useful descriptor ('Texture'). Part 3 uses 'Silent' and 'Nature Landscape' for atmospheric keywords. There are no filler words. Every word is a potential keyword.
 
-*   **Typo Correction:** If the input seems to have a typo, interpret the intended meaning and use the correct term.
+*   **Long Phrase (e.g., 'A detailed illustration of vintage flowers'):** Extract the core keywords ('vintage', 'flowers', 'illustration') and build a new, optimized title following the structure and keyword rules.
 
-**Final Output:** The result must be a single block of text, formatted exactly as described, under 160 characters, and optimized for discoverability on microstock platforms.`;
+**Final Output:** Deliver a single string, formatted exactly as described, under 160 characters, and optimized for maximum discoverability on microstock platforms.`;
 
   try {
     const response = await ai.models.generateContent({
