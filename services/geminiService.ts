@@ -89,7 +89,7 @@ export const generateJsonPrompt = async (title: string, apiKey: string): Promise
     4.  **mood**: List several moods that fit the style and colors.
         *   Example: "festive, cheerful, cute, cozy, playful, happy, wholesome"
     5.  **style**: Choose a specific, vector-friendly art style (elegant, minimalist, or abstract), suitable for vectorization. AVOID painterly styles like watercolor or oil painting. The format MUST be exactly: \`Style Vector minimalist Pure : [Style Name] ([Characteristic 1], [Characteristic 2]), [Characteristic 3], [Characteristic 4]\`.
-        *   Good Style Examples: 'Minimalist Line Art', 'Art Deco', 'Memphis Group', 'Synthwave Neon', 'Flat Isometric', 'Japanese Zen Minimalism'.
+        *   Good Style Examples: 'Bauhaus (Functional, Geometric Purity)', 'Art Deco (Elegant, Symmetrical)', 'Minimalist Line Art (Single Weight, Expressive)', 'Japanese Zen Minimalism (Simplicity, Negative Space)'.
         *   Example Format: "Style Vector minimalist Pure : Art Deco (Glamorous, Geometric), symmetrical, elegant"
     
     The entire response must be a single, valid JSON object and be less than 910 characters long.`;
@@ -165,25 +165,38 @@ export const changeStyle = async (currentPrompt: JsonPrompt, apiKey: string): Pr
     const prompt = `Based on the existing AI prompt's concept:
 - Concept: "${currentPrompt.concept}"
 
-The current style is "${currentPrompt.style}". Generate a completely different style that is elegant, minimalist, or abstract and suitable for vectorization.
-AVOID painterly styles like watercolor, oil painting, or heavy textures.
+The current style is "${currentPrompt.style}". Generate a completely new and different style from the current one. The new style MUST be elegant, minimalist, or abstract and suitable for vectorization. AVOID painterly styles like watercolor, oil painting, or heavy textures.
 
-Here are some examples of desirable styles for inspiration:
-- Minimalist Line Art (Sophisticated Simplicity)
-- Bauhaus Simplified (Functional, Primary Shapes)
-- Art Deco (Glamorous & Geometric)
-- Memphis Group (Bold, Geometric, Playful)
-- Scandinavian (Nordic Holiday Touch)
-- Modern Folk Minimalism (Nordic-Boho Fusion)
-- Synthwave Neon (Electric, Glowing Lines)
-- Flat Isometric (Simplified flat)
-- Abstract Organic (Fluid & Natural Forms)
-- Japanese Zen Minimalism
-- Swiss International Style - Pure Icon
-- Continuous Line Art (Fluid & Expressive)
-- Cyberpunk Outline (Gritty, High-Tech Details)
-- Comic Book Style (Dynamic & Expressive)
-- Pop Art (Vibrant & Bold)
+You MUST select a style from the provided list or a style that is conceptually very similar.
+
+**Curated Style List (Choose One):**
+
+**Geometric & Abstract:**
+*   Bauhaus (Functional, Geometric Purity)
+*   Memphis Design (Postmodern, Bold & Quirky)
+*   Swiss International Style (Grid-based, Clean Typography)
+*   Art Deco (Elegant, Symmetrical, Luxurious)
+*   Cubism (Fragmented, Multi-perspective)
+*   Geometric Abstraction (Shapes, Lines, Forms)
+*   Low Poly (Faceted, Digital Aesthetic)
+*   Flat Isometric (2.5D, Clean & Technical)
+
+**Minimalist & Line Art:**
+*   Minimalist Line Art (Single Weight, Expressive)
+*   Continuous Line Drawing (One-line, Fluid)
+*   Japanese Zen Minimalism (Simplicity, Negative Space)
+*   Scandinavian Design (Hygge, Clean, Functional)
+*   Stipple Art (Dot-based Shading, Engraved Look)
+*   Outline Style (Bold Outlines, Minimal Fill)
+
+**Modern & Stylized:**
+*   Corporate Membranism (Soft UI, Subtle Shadows)
+*   Synthwave & Outrun (80s Retro, Neon Grids)
+*   Psychedelic Art (Swirling, Distorted, Vibrant)
+*   Modern Folk Art (Simplified, Decorative, Storytelling)
+*   Abstract Organic (Flowing, Nature-inspired Shapes)
+*   Trompe L'oeil (Illusory, Realistic Depth)
+*   Ukiyo-e Modernism (Japanese Woodblock, Flat Colors)
 
 Also generate a new matching color palette, background, and mood.
 Strictly follow this example format:
