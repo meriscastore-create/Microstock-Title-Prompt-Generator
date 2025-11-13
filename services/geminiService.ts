@@ -21,49 +21,83 @@ const handleApiError = (error: unknown): never => {
     throw new Error("Terjadi kesalahan tak terduga. Silakan coba lagi.");
 };
 
-export const generateTrendKeywords = async (apiKey: string): Promise<string> => {
+export const generateTrendKeywords = async (apiKey: string): Promise<Array<{ category: string; keywords: string[] }>> => {
     if (!apiKey) throw new Error("API key is not set.");
     const ai = new GoogleGenAI({ apiKey });
   
     const currentDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
 
-    const prompt = `You are an AI creative assistant for a vector artist who specializes **exclusively** in creating commercially successful **SEAMLESS PATTERNS** for microstock platforms. Your single most important job is to provide ideas that can be turned into repeating patterns of tangible objects or clear visual styles.
-
-**!! ABSOLUTELY NO ABSTRACT CONCEPTS !!**
-
-Your task is to generate exactly 10 high-demand keyword ideas that will trend or are consistently popular, starting from today, ${currentDate}.
+    const prompt = `You are a top-tier microstock trend analyst for a vector artist who creates **commercially successful SEAMLESS PATTERNS**. Your task is to generate 10 high-demand keyword ideas, perfectly categorized for quick selection.
 
 **CRITICAL RULES - FOLLOW THESE EXACTLY:**
 
-1.  **PATTERN-FIRST MENTALITY (MOST IMPORTANT RULE):** Every single keyword MUST represent a tangible, drawable concept that works perfectly as a repeating pattern. Think about objects, characters, or distinct visual elements.
-    *   **PERFECT EXAMPLES:** 'Cute Halloween Ghosts', 'Vintage Botanical Flowers', 'Kawaii Birthday Cats', 'Geometric Memphis Shapes', 'Watercolor Lemons'.
-    *   **FORBIDDEN ABSTRACT CONCEPTS:** Do NOT suggest themes like 'AI Technology Future', 'Sustainable Living', 'Corporate Synergy', 'Digital Transformation', or any other idea that is not a visual object or a clear, repeatable style. This is a critical failure if you include abstract ideas.
+1.  **PATTERN-FIRST MENTALITY (MOST IMPORTANT RULE):** Every single keyword MUST represent a tangible, drawable concept that works perfectly as a repeating pattern.
+    *   **PERFECT EXAMPLES:** 'Cute Halloween Ghosts', 'Vintage Botanical Flowers', 'Kawaii Birthday Cats', 'Geometric Memphis Shapes'.
+    *   **FORBIDDEN ABSTRACT CONCEPTS:** Do NOT suggest themes like 'AI Technology Future', 'Sustainable Living', or any other idea that is not a visual object or a clear, repeatable style. This is your most important constraint.
 
-2.  **COMMERCIAL & TIMELY:**
-    *   **8 Keywords:** Focus on upcoming seasons, major holidays (global and diverse), and popular aesthetic trends (e.g., 'Cottagecore', 'Y2K Aesthetic').
-    *   **2 Keywords:** Exactly two keywords MUST be distinct, popular birthday themes suitable for patterns (e.g., 'Kids Dino Birthday', 'Elegant Birthday Balloons').
+2.  **STRICT CATEGORIZATION:** You must generate keywords for the following three categories with the exact number of keywords specified for each.
+
+    *   **Holiday / Seasonal (4 keywords):** Focus on upcoming major holidays and seasons from today, ${currentDate}.
+    *   **Evergreen (2 keywords):** Focus on consistently popular, non-seasonal themes. Exactly two keywords MUST be distinct, popular birthday themes.
+    *   **Trending Style (4 keywords):** Focus on popular aesthetic styles or motifs that are not tied to a specific holiday (e.g., 'Abstract Organic Shapes', 'Cottagecore').
 
 3.  **CONCISE:** Each keyword should be a 2-4 word phrase.
 
-**FINAL CHECK:**
-Before you provide your answer, re-read your list. For each keyword, ask yourself: "Can I immediately picture this as a repeating pattern of simple vector objects?" If not, replace it.
-
-**OUTPUT FORMAT:**
-- Your entire response MUST be a single line of text.
-- EXACTLY 10 keywords, separated by a comma.
-- No introductions, no explanations, no numbers, no bullet points, no markdown.
+**OUTPUT FORMAT - THIS IS CRITICAL:**
+- Your entire response MUST be in markdown format.
+- Use a level 3 heading (###) for each category title, exactly as written below.
+- Use a hyphen (-) for each keyword.
+- Do not add any introductory text, explanations, or concluding remarks.
 
 **Example of a perfect response:**
-Cozy Fall Aesthetic, Spooky Halloween Icons, Hanukkah Dreidels, Diwali Lanterns, Abstract Geometric Shapes, Winter Woodland Animals, Kids Birthday Party, Cute Animal Birthday, Minimalist Christmas, Vintage Botanical
+### Holiday / Seasonal
+- Cozy Fall Aesthetic
+- Spooky Halloween Icons
+- Minimalist Christmas
+- Hanukkah Dreidels
 
-Generate the 10 keywords now.`;
+### Evergreen
+- Kids Dino Birthday
+- Cute Animal Birthday
+
+### Trending Style
+- Abstract Geometric Shapes
+- Vintage Botanical
+- Y2K Aesthetic
+- Cottagecore Florals
+
+Generate the 10 categorized keywords now.`;
   
     try {
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt
       });
-      return response.text.trim();
+      
+      const text = response.text.trim();
+      const categories: Array<{ category: string; keywords: string[] }> = [];
+      let currentCategory: { category: string; keywords: string[] } | null = null;
+
+      text.split('\n').forEach(line => {
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('### ')) {
+          if (currentCategory) {
+            categories.push(currentCategory);
+          }
+          currentCategory = {
+            category: trimmedLine.substring(4).trim(),
+            keywords: []
+          };
+        } else if (trimmedLine.startsWith('- ') && currentCategory) {
+          currentCategory.keywords.push(trimmedLine.substring(2).trim());
+        }
+      });
+
+      if (currentCategory) {
+        categories.push(currentCategory);
+      }
+      
+      return categories;
     } catch (error) {
       handleApiError(error);
     }

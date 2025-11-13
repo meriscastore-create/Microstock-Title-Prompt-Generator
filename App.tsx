@@ -60,6 +60,11 @@ interface Toast {
   type: 'success' | 'error';
 }
 
+interface CategorizedKeywords {
+    category: string;
+    keywords: string[];
+}
+
 // --- HELPER FUNCTIONS ---
 const formatJsonPrompt = (prompt: JsonPrompt): string => {
     const keyOrder = ['concept', 'composition', 'color', 'background', 'mood', 'style', 'settings'];
@@ -157,7 +162,7 @@ const App: React.FC = () => {
     const [jsonString, setJsonString] = useState('');
     const [apiKey, setApiKey] = useState<string>('');
     const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
-    const [suggestedKeywords, setSuggestedKeywords] = useState<string[]>([]);
+    const [categorizedKeywords, setCategorizedKeywords] = useState<CategorizedKeywords[]>([]);
     const [isSuggesting, setIsSuggesting] = useState<boolean>(false);
     
     const [isProcessingSuggestion, setIsProcessingSuggestion] = useState<boolean>(false);
@@ -249,17 +254,17 @@ const App: React.FC = () => {
     const handleSuggestKeywords = async () => {
         setShowSuggestionArea(true);
         setIsSuggesting(true);
-        setSuggestedKeywords([]);
-        const keywordsString = await handleApiCall(() => geminiService.generateTrendKeywords(apiKey));
-        if (keywordsString) {
-            setSuggestedKeywords(keywordsString.split(',').map(k => k.trim()).filter(Boolean));
+        setCategorizedKeywords([]);
+        const keywordsArray = await handleApiCall(() => geminiService.generateTrendKeywords(apiKey));
+        if (keywordsArray) {
+            setCategorizedKeywords(keywordsArray);
         }
         setIsSuggesting(false);
     };
 
     const handleSelectSuggestedKeyword = async (keyword: string) => {
         setIsProcessingSuggestion(true);
-        setSuggestedKeywords([]);
+        setCategorizedKeywords([]);
         setShowSuggestionArea(false);
         setBaseKeywords(keyword);
     
@@ -475,26 +480,30 @@ const App: React.FC = () => {
                         </button>
                     </div>
                     
-                    <div className={`transition-[max-height,opacity,margin] duration-500 ease-in-out ${showSuggestionArea ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'} overflow-hidden text-center`}>
+                    <div className={`transition-[max-height,opacity,margin] duration-500 ease-in-out ${showSuggestionArea ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'} overflow-hidden`}>
                         {isSuggesting || isProcessingSuggestion ? (
-                            <div className="flex justify-center items-center py-4">
-                                <Spinner className="h-6 w-6" />
+                            <div className="flex justify-center items-center py-8">
+                                <Spinner className="h-8 w-8 text-brand-primary" />
                             </div>
-                        ) : suggestedKeywords.length > 0 ? (
-                            <div>
-                                <p className="text-medium-text mb-3 text-sm">Or try one of these trends:</p>
-                                <div className="flex flex-wrap gap-2 justify-center">
-                                    {suggestedKeywords.map((keyword, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => handleSelectSuggestedKeyword(keyword)}
-                                            disabled={isProcessingSuggestion}
-                                            className="bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-1.5 px-3 rounded-full text-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-wait"
-                                        >
-                                            {keyword}
-                                        </button>
-                                    ))}
-                                </div>
+                        ) : categorizedKeywords.length > 0 ? (
+                            <div className="text-center">
+                                {categorizedKeywords.map(({ category, keywords }) => (
+                                    <div key={category} className="mb-4 last:mb-0">
+                                        <h3 className="font-bold text-lg mb-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">{category}</h3>
+                                        <div className="flex flex-wrap gap-2 justify-center">
+                                            {keywords.map((keyword, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => handleSelectSuggestedKeyword(keyword)}
+                                                    disabled={isProcessingSuggestion}
+                                                    className="bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-1.5 px-3 rounded-full text-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-wait"
+                                                >
+                                                    {keyword}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ) : null}
                     </div>
