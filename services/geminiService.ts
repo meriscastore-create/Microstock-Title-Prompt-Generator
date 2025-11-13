@@ -257,9 +257,18 @@ Now, apply this exact process to revise the title: "${currentTitle}"`;
     }
 };
 
-export const generateJsonPrompt = async (title: string, apiKey: string): Promise<JsonPrompt> => {
+export const generateJsonPrompt = async (title: string, apiKey: string, stylePreferences: string[] = []): Promise<JsonPrompt> => {
     if (!apiKey) throw new Error("API key is not set.");
     const ai = new GoogleGenAI({ apiKey });
+
+    let preferencesPromptSection = '';
+    if (stylePreferences.length > 0) {
+      preferencesPromptSection = `
+**User Style Preferences (Primary Influence):**
+You MUST fuse the core theme of the title with the following user-selected style preferences. The final style should be a creative and commercially viable blend. For example, if the title is 'Cute Kawaii Cats' and the preference is 'Minimalist', the resulting style MUST be 'Minimalist Kawaii' or similar.
+- ${stylePreferences.join('\n- ')}
+`;
+    }
 
     const prompt = `You are a creative AI art director. Your task is to expand a microstock title into a complete, descriptive JSON prompt for an AI image generator. You must choose the BEST possible style that fits the theme.
 
@@ -267,8 +276,9 @@ export const generateJsonPrompt = async (title: string, apiKey: string): Promise
 
 **Your Process:**
 1.  **Analyze Theme:** Deeply analyze the title to understand its core theme, subject matter, and mood (e.g., 'Christmas', 'vintage', 'cute animal').
+${preferencesPromptSection}
 2.  **Select the Perfect Style:**
-    *   Choose the most commercially appealing and artistically appropriate vector-friendly style for this theme.
+    *   Choose the most commercially appealing and artistically appropriate vector-friendly style for this theme, heavily influenced by any user preferences provided.
     *   **CRITICAL STYLE CONSTRAINTS:** AVOID photorealistic, 3D rendering, complex shading, or painterly styles (like watercolor, oil painting). Focus on styles that work well as clean, scalable vector graphics (e.g., Flat Graphic, Kawaii, Art Deco, Line Art, Memphis).
 3.  **Generate a VIBRANT & DIVERSE Palette:**
     *   Create a matching color palette. It MUST be vibrant, eye-catching, and thematically appropriate.

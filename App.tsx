@@ -52,6 +52,12 @@ const CloseIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) 
     </svg>
 );
 
+const SlidersIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+    </svg>
+);
+
 
 // --- TYPES ---
 interface Toast {
@@ -69,6 +75,15 @@ interface CategorizedKeywords {
     category: string;
     keywords: KeywordSuggestion[];
 }
+
+
+// --- CONSTANTS ---
+const STYLE_PREFERENCES = [
+    'Creative', 'Minimalist', 'Elegant', 'Trendy', 'Organic', 'Hand-Drawn', 
+    'Geometric', 'Cute', 'Pastel', 'Vintage', 'Whimsical', 'Boho', 
+    'Cottagecore', 'Flat', 'Abstract', 'Art Deco', 'Memphis', 'Line Art',
+    'Ukiyo-e', 'Psychedelic', 'Gothic', 'Steampunk', 'Luxury', 'Modern', 'Kawaii'
+];
 
 
 // --- HELPER FUNCTIONS ---
@@ -152,6 +167,61 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSave }) =>
     );
 };
 
+interface StylePreferencesPopoverProps {
+    isOpen: boolean;
+    onClose: () => void;
+    preferences: string[];
+    selectedPreferences: string[];
+    onToggle: (preference: string) => void;
+    anchorRef: React.RefObject<HTMLButtonElement>;
+}
+
+const StylePreferencesPopover: React.FC<StylePreferencesPopoverProps> = ({ isOpen, onClose, preferences, selectedPreferences, onToggle, anchorRef }) => {
+    const popoverRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (popoverRef.current && !popoverRef.current.contains(event.target as Node) && anchorRef.current && !anchorRef.current.contains(event.target as Node)) {
+                onClose();
+            }
+        };
+        if (isOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isOpen, onClose, anchorRef]);
+
+    if (!isOpen) return null;
+
+    return (
+        <div ref={popoverRef} className="absolute z-20 mt-2 w-80 sm:w-96 bg-dark-card border border-dark-border rounded-lg shadow-xl p-4 right-0 sm:right-auto sm:left-0 animate-fade-in">
+            <div className="flex justify-between items-center mb-3">
+                <h3 className="font-bold text-lg text-light-text">Style Preferences</h3>
+                <button onClick={onClose} className="text-medium-text hover:text-light-text">
+                    <CloseIcon className="w-6 h-6" />
+                </button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-2">
+                {preferences.map(pref => (
+                    <button
+                        key={pref}
+                        onClick={() => onToggle(pref)}
+                        className={`text-sm text-left p-2 rounded-md transition-colors duration-150 ${
+                            selectedPreferences.includes(pref)
+                                ? 'bg-brand-primary text-white font-semibold'
+                                : 'bg-gray-800 hover:bg-gray-700 text-medium-text'
+                        }`}
+                    >
+                        {pref}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 
 const App: React.FC = () => {
     const [userInput, setUserInput] = useState<string>('');
@@ -176,7 +246,10 @@ const App: React.FC = () => {
     const [showSuggestionArea, setShowSuggestionArea] = useState<boolean>(false);
     const [isCombining, setIsCombining] = useState<boolean>(false);
     const [styleHistory, setStyleHistory] = useState<string[]>([]);
+    const [selectedStylePreferences, setSelectedStylePreferences] = useState<string[]>([]);
+    const [isPreferencesOpen, setIsPreferencesOpen] = useState<boolean>(false);
 
+    const preferencesButtonRef = useRef<HTMLButtonElement>(null);
     const styleRequestRef = useRef(0);
 
 
@@ -255,6 +328,7 @@ const App: React.FC = () => {
         setIframeUrl('');
         setShowSuggestionArea(false);
         setStyleHistory([]);
+        setSelectedStylePreferences([]);
     };
 
     const handleSuggestKeywords = async () => {
@@ -330,7 +404,7 @@ const App: React.FC = () => {
         if (!generatedTitle) return;
         setIsCreatingPrompt(true);
         setStyleHistory([]);
-        const prompt = await handleApiCall(() => geminiService.generateJsonPrompt(generatedTitle, apiKey));
+        const prompt = await handleApiCall(() => geminiService.generateJsonPrompt(generatedTitle, apiKey, selectedStylePreferences));
         if(prompt) {
             setJsonPrompt(prompt);
             setJsonString(formatJsonPrompt(prompt));
@@ -381,6 +455,14 @@ const App: React.FC = () => {
              setIsModifying(null);
         }
     };
+    
+    const handleTogglePreference = (preference: string) => {
+        setSelectedStylePreferences(prev => 
+            prev.includes(preference) 
+                ? prev.filter(p => p !== preference) 
+                : [...prev, preference]
+        );
+    };
 
     const titleCharCount = generatedTitle.length;
     const titleCharCountColor = titleCharCount > 170 ? 'text-red-400' : 'text-green-400';
@@ -417,8 +499,8 @@ const App: React.FC = () => {
 
             <main className="max-w-7xl mx-auto">
                 <div className="bg-dark-card shadow-lg rounded-lg p-6 border border-dark-border mb-8 max-w-4xl mx-auto">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="relative flex-grow">
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
+                        <div className="relative flex-grow w-full">
                              <input
                                 type="text"
                                 value={userInput}
@@ -449,41 +531,66 @@ const App: React.FC = () => {
                                 </button>
                             )}
                         </div>
-                         {userInput.trim().length > 0 ? (
+                        <div className="flex w-full sm:w-auto gap-4">
+                            <div className="relative">
+                                <button
+                                    ref={preferencesButtonRef}
+                                    onClick={() => setIsPreferencesOpen(prev => !prev)}
+                                    className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md transition duration-200 h-full"
+                                    title="Set Style Preferences"
+                                >
+                                    <SlidersIcon />
+                                    {selectedStylePreferences.length > 0 && (
+                                        <span className="absolute -top-2 -right-2 bg-brand-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                            {selectedStylePreferences.length}
+                                        </span>
+                                    )}
+                                </button>
+                                <StylePreferencesPopover 
+                                    isOpen={isPreferencesOpen}
+                                    onClose={() => setIsPreferencesOpen(false)}
+                                    preferences={STYLE_PREFERENCES}
+                                    selectedPreferences={selectedStylePreferences}
+                                    onToggle={handleTogglePreference}
+                                    anchorRef={preferencesButtonRef}
+                                />
+                            </div>
+                             {userInput.trim().length > 0 ? (
+                                <button
+                                    onClick={handleCombineKeyword}
+                                    disabled={isLoading || isCombining}
+                                    className="flex-grow flex items-center justify-center bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                                    title="Combine with a new unique keyword"
+                                >
+                                    {isCombining ? <Spinner /> : <MagicWandIcon />}
+                                    <span className="hidden sm:inline sm:ml-2">Combine</span>
+                                </button>
+                             ) : (
+                                <button
+                                    onClick={handleSuggestKeywords}
+                                    disabled={isLoading || isSuggesting}
+                                    className="flex-grow flex items-center justify-center bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                                    title="Suggest Trending Keywords"
+                                >
+                                    {isSuggesting ? <Spinner /> : <LightbulbIcon />}
+                                    <span className="hidden sm:inline sm:ml-2">Suggest</span>
+                                </button>
+                             )}
                             <button
-                                onClick={handleCombineKeyword}
-                                disabled={isLoading || isCombining}
-                                className="flex items-center justify-center bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
-                                title="Combine with a new unique keyword"
+                                onClick={handleGenerate}
+                                disabled={isLoading || isSuggesting || isCombining || !userInput.trim()}
+                                className="flex-grow flex items-center justify-center bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-3 px-6 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
                             >
-                                {isCombining ? <Spinner /> : <MagicWandIcon />}
-                                <span className="hidden sm:inline sm:ml-2">Combine</span>
+                                {isLoading ? (
+                                    <>
+                                      <Spinner className="-ml-1 mr-3 h-5 w-5 text-white" />
+                                      Generating...
+                                    </>
+                                ) : (
+                                    "Generate"
+                                )}
                             </button>
-                         ) : (
-                            <button
-                                onClick={handleSuggestKeywords}
-                                disabled={isLoading || isSuggesting}
-                                className="flex items-center justify-center bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
-                                title="Suggest Trending Keywords"
-                            >
-                                {isSuggesting ? <Spinner /> : <LightbulbIcon />}
-                                <span className="hidden sm:inline sm:ml-2">Suggest</span>
-                            </button>
-                         )}
-                        <button
-                            onClick={handleGenerate}
-                            disabled={isLoading || isSuggesting || isCombining || !userInput.trim()}
-                            className="flex items-center justify-center bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-3 px-6 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
-                        >
-                            {isLoading ? (
-                                <>
-                                  <Spinner className="-ml-1 mr-3 h-5 w-5 text-white" />
-                                  Generating...
-                                </>
-                            ) : (
-                                "Generate"
-                            )}
-                        </button>
+                        </div>
                     </div>
                     
                     <div className={`transition-[max-height,opacity,margin] duration-500 ease-in-out ${showSuggestionArea ? 'max-h-[1000px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'} overflow-auto`}>
