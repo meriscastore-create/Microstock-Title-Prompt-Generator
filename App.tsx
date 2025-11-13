@@ -9,7 +9,7 @@ const CopyIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) =
   </svg>
 );
 
-const CheckIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+const KeywordCheckerIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
     <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
   </svg>
@@ -18,6 +18,12 @@ const CheckIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) 
 const MagicWandIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 0 0-2.122.568l-4.24 4.24a1.5 1.5 0 0 0 2.12 2.122l4.24-4.24a3 3 0 0 0-.568-2.122ZM11.978 15.61c-3.132 0-5.657-2.525-5.657-5.657s2.525-5.657 5.657-5.657 5.657 2.525 5.657 5.657-2.525 5.657-5.657 5.657ZM9.53 2.553a2.553 2.553 0 0 1 3.61 0l1.06 1.06a2.553 2.553 0 0 1 0 3.61l-1.06 1.06a2.553 2.553 0 0 1-3.61 0l-1.06-1.06a2.553 2.553 0 0 1 0-3.61l1.06-1.06Z" />
+    </svg>
+);
+
+const RefreshIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 11.667 0l3.181-3.183m-3.181-3.182-3.182 3.182a8.25 8.25 0 0 1-11.667 0l-3.181-3.182m3.181 3.182L6.341 12.66m11.314 0-3.181 3.182" />
     </svg>
 );
 
@@ -34,6 +40,19 @@ const KeyIcon: React.FC<{ className?: string }> = ({ className = "w-6 h-6 text-m
     </svg>
 );
 
+const LightbulbIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.311a7.5 7.5 0 0 1-7.5 0c-1.421 0-2.8-.31-4.097-.862a1.12 1.12 0 0 1-.614-1.28L6 14.25M12 18h.008M18 14.25l.89-1.522a1.12 1.12 0 0 1 .614-1.28c1.3-.552 2.678-.862 4.097-.862a7.5 7.5 0 0 1-7.5 0c-1.42 0-2.8.31-4.097-.862a1.12 1.12 0 0 1-.614 1.28L6 14.25m12 0a12.06 12.06 0 0 0-4.5 0m3.75-2.311a7.5 7.5 0 0 0-7.5 0c-1.42 0-2.8.31-4.097-.862a1.12 1.12 0 0 0-.614 1.28L6 14.25" />
+    </svg>
+);
+
+const CloseIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+    </svg>
+);
+
+
 // --- TYPES ---
 interface Toast {
   id: number;
@@ -46,6 +65,16 @@ const formatJsonPrompt = (prompt: JsonPrompt): string => {
     const keyOrder = ['concept', 'composition', 'color', 'background', 'mood', 'style', 'settings'];
     return JSON.stringify(prompt, keyOrder, 2);
 };
+
+const shuffleArray = <T,>(array: T[]): T[] => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+};
+
 
 // --- COMPONENTS ---
 const Toast: React.FC<{ message: string; type: 'success' | 'error'; onClose: () => void }> = ({ message, type, onClose }) => {
@@ -115,17 +144,27 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSave }) =>
 
 const App: React.FC = () => {
     const [userInput, setUserInput] = useState<string>('');
+    const [baseKeywords, setBaseKeywords] = useState<string>('');
     const [generatedTitle, setGeneratedTitle] = useState<string>('');
     const [jsonPrompt, setJsonPrompt] = useState<JsonPrompt | null>(null);
     const [iframeUrl, setIframeUrl] = useState<string>('');
     const [showIframe, setShowIframe] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isRefreshingTitle, setIsRefreshingTitle] = useState<boolean>(false);
     const [isCreatingPrompt, setIsCreatingPrompt] = useState<boolean>(false);
     const [isModifying, setIsModifying] = useState<string | null>(null);
     const [toasts, setToasts] = useState<Toast[]>([]);
     const [jsonString, setJsonString] = useState('');
     const [apiKey, setApiKey] = useState<string>('');
     const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
+    const [suggestedKeywords, setSuggestedKeywords] = useState<string[]>([]);
+    const [isSuggesting, setIsSuggesting] = useState<boolean>(false);
+    
+    const [isProcessingSuggestion, setIsProcessingSuggestion] = useState<boolean>(false);
+    
+    const [showSuggestionArea, setShowSuggestionArea] = useState<boolean>(false);
+    const [isCombining, setIsCombining] = useState<boolean>(false);
+
 
     useEffect(() => {
         const savedKey = localStorage.getItem('gemini-api-key');
@@ -180,6 +219,8 @@ const App: React.FC = () => {
         setJsonString('');
         setShowIframe(false);
         setIframeUrl('');
+        setShowSuggestionArea(false);
+        // Don't reset baseKeywords here, it's needed for context if user generates after combining.
 
         const title = await handleApiCall(() => geminiService.generateTitle(userInput, apiKey));
         if(title) {
@@ -187,6 +228,85 @@ const App: React.FC = () => {
         }
         setIsLoading(false);
     }, [userInput, apiKey, addToast]);
+    
+    const handleClearInput = () => {
+        setUserInput('');
+        setBaseKeywords('');
+        setGeneratedTitle('');
+        setJsonPrompt(null);
+        setJsonString('');
+        setShowIframe(false);
+        setIframeUrl('');
+        setShowSuggestionArea(false);
+    };
+
+    const handleSuggestKeywords = async () => {
+        setShowSuggestionArea(true);
+        setIsSuggesting(true);
+        setSuggestedKeywords([]);
+        const keywordsString = await handleApiCall(() => geminiService.generateTrendKeywords(apiKey));
+        if (keywordsString) {
+            setSuggestedKeywords(keywordsString.split(',').map(k => k.trim()).filter(Boolean));
+        }
+        setIsSuggesting(false);
+    };
+
+    const handleSelectSuggestedKeyword = async (keyword: string) => {
+        setIsProcessingSuggestion(true);
+        setSuggestedKeywords([]);
+        setShowSuggestionArea(false);
+        setBaseKeywords(keyword);
+    
+        const uniqueKeyword = await handleApiCall(() => geminiService.generateUniqueKeywords(keyword, apiKey));
+    
+        if (uniqueKeyword && uniqueKeyword.trim()) {
+            const trendKeywords = keyword.split(' ').map(k => k.trim().replace(/,$/, '')).filter(Boolean);
+            const allKeywords = [...trendKeywords, uniqueKeyword.trim()];
+            const shuffledKeywords = shuffleArray(allKeywords);
+            setUserInput(shuffledKeywords.join(', '));
+            addToast('Concept created and randomized!', 'success');
+        }
+        setIsProcessingSuggestion(false);
+    };
+
+    const handleCombineKeyword = async () => {
+        const baseForCombination = baseKeywords || userInput;
+        if (!baseForCombination.trim()) return;
+
+        if (!baseKeywords) {
+            setBaseKeywords(baseForCombination);
+        }
+        
+        setIsCombining(true);
+        const uniqueKeyword = await handleApiCall(() => geminiService.generateUniqueKeywords(baseForCombination, apiKey));
+        
+        if (uniqueKeyword && uniqueKeyword.trim()) {
+            const trendKeywords = baseForCombination.split(' ').map(k => k.trim().replace(/,$/, '')).filter(Boolean);
+            const allKeywords = [...trendKeywords, uniqueKeyword.trim()];
+            const shuffledKeywords = shuffleArray(allKeywords);
+            setUserInput(shuffledKeywords.join(', '));
+            addToast('Combination randomized!', 'success');
+        }
+        setIsCombining(false);
+    };
+
+    const handleRefreshTitleElements = async () => {
+        if (!generatedTitle) return;
+
+        setIsRefreshingTitle(true);
+        // Reset downstream data that depends on the title
+        setJsonPrompt(null);
+        setJsonString('');
+        setShowIframe(false);
+        setIframeUrl('');
+
+        const newTitle = await handleApiCall(() => geminiService.changeTitleElements(generatedTitle, apiKey));
+        if (newTitle) {
+            setGeneratedTitle(newTitle);
+            addToast('Title elements have been refreshed!', 'success');
+        }
+        setIsRefreshingTitle(false);
+    };
 
     const handleCreateJsonPrompt = async () => {
         if (!generatedTitle) return;
@@ -272,17 +392,61 @@ const App: React.FC = () => {
             <main className="max-w-7xl mx-auto">
                 <div className="bg-dark-card shadow-lg rounded-lg p-6 border border-dark-border mb-8 max-w-4xl mx-auto">
                     <div className="flex flex-col sm:flex-row gap-4">
-                        <input
-                            type="text"
-                            value={userInput}
-                            onChange={(e) => setUserInput(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                            placeholder="e.g., Christmas Tree, Vintage Flowers"
-                            className="flex-grow bg-gray-800 border border-dark-border rounded-md px-4 py-3 text-light-text placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-primary transition duration-200"
-                        />
+                        <div className="relative flex-grow">
+                             <input
+                                type="text"
+                                value={userInput}
+                                onChange={(e) => {
+                                    setUserInput(e.target.value);
+                                    if(baseKeywords) setBaseKeywords(''); // Reset base if user types manually
+                                }}
+                                onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                                placeholder={
+                                    isProcessingSuggestion || isCombining 
+                                    ? "Creating a new concept..." 
+                                    : "e.g., Christmas Tree, Vintage Flowers"
+                                }
+                                disabled={isProcessingSuggestion || isCombining}
+                                className="w-full bg-gray-800 border border-dark-border rounded-md px-4 py-3 text-light-text placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-primary transition duration-200 pr-10 disabled:opacity-70"
+                            />
+                            {(isProcessingSuggestion || isCombining) ? (
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <Spinner className="w-5 h-5 text-brand-primary" />
+                                </div>
+                            ) : userInput && (
+                                <button
+                                    onClick={handleClearInput}
+                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-medium-text hover:text-light-text transition-colors"
+                                    aria-label="Clear input"
+                                >
+                                    <CloseIcon className="w-5 h-5" />
+                                </button>
+                            )}
+                        </div>
+                         {userInput.trim().length > 0 ? (
+                            <button
+                                onClick={handleCombineKeyword}
+                                disabled={isLoading || isCombining}
+                                className="flex items-center justify-center bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                                title="Combine with a new unique keyword"
+                            >
+                                {isCombining ? <Spinner /> : <MagicWandIcon />}
+                                <span className="hidden sm:inline sm:ml-2">Combine</span>
+                            </button>
+                         ) : (
+                            <button
+                                onClick={handleSuggestKeywords}
+                                disabled={isLoading || isSuggesting}
+                                className="flex items-center justify-center bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                                title="Suggest Trending Keywords"
+                            >
+                                {isSuggesting ? <Spinner /> : <LightbulbIcon />}
+                                <span className="hidden sm:inline sm:ml-2">Suggest</span>
+                            </button>
+                         )}
                         <button
                             onClick={handleGenerate}
-                            disabled={isLoading}
+                            disabled={isLoading || isSuggesting || isCombining || !userInput.trim()}
                             className="flex items-center justify-center bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-3 px-6 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
                         >
                             {isLoading ? (
@@ -291,10 +455,35 @@ const App: React.FC = () => {
                                   Generating...
                                 </>
                             ) : (
-                                "Generate Title"
+                                "Generate"
                             )}
                         </button>
                     </div>
+                    
+                    <div className={`transition-[max-height,opacity,margin] duration-500 ease-in-out ${showSuggestionArea ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'} overflow-hidden text-center`}>
+                        {isSuggesting || isProcessingSuggestion ? (
+                            <div className="flex justify-center items-center py-4">
+                                <Spinner className="h-6 w-6" />
+                            </div>
+                        ) : suggestedKeywords.length > 0 ? (
+                            <div>
+                                <p className="text-medium-text mb-3 text-sm">Or try one of these trends:</p>
+                                <div className="flex flex-wrap gap-2 justify-center">
+                                    {suggestedKeywords.map((keyword, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => handleSelectSuggestedKeyword(keyword)}
+                                            disabled={isProcessingSuggestion}
+                                            className="bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-1.5 px-3 rounded-full text-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-wait"
+                                        >
+                                            {keyword}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : null}
+                    </div>
+
                 </div>
 
                 <div className={`grid ${gridLayoutClass} gap-8`}>
@@ -307,19 +496,29 @@ const App: React.FC = () => {
                                 </div>
                                 <p className="text-medium-text mb-4 bg-gray-800 p-4 rounded-md">{generatedTitle}</p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    <button onClick={handleCheckKeywords} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
-                                        <CheckIcon /> Check Keywords
+                                    <button
+                                        onClick={handleRefreshTitleElements}
+                                        disabled={isCreatingPrompt || isRefreshingTitle}
+                                        className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:bg-gray-500"
+                                        title="Refresh title elements"
+                                    >
+                                        {isRefreshingTitle ? <Spinner /> : <RefreshIcon />} Refresh Elements
                                     </button>
                                     <button
                                         onClick={handleCreateJsonPrompt}
-                                        disabled={isCreatingPrompt}
+                                        disabled={isCreatingPrompt || isRefreshingTitle}
                                         className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:bg-gray-500"
                                     >
                                         {isCreatingPrompt ? <Spinner /> : <MagicWandIcon />}
                                         Create JSON
                                     </button>
-                                    <button onClick={() => handleCopy(generatedTitle, 'title')} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center col-span-1 sm:col-span-2 lg:col-span-1">
+                                    <button onClick={() => handleCopy(generatedTitle, 'title')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
                                         <CopyIcon /> Copy Title
+                                    </button>
+                                </div>
+                                <div className="mt-4">
+                                     <button onClick={handleCheckKeywords} className="flex items-center gap-2 bg-indigo-600/50 hover:bg-indigo-500/50 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
+                                        <KeywordCheckerIcon /> Check Keywords on MyKeyworder
                                     </button>
                                 </div>
                             </div>

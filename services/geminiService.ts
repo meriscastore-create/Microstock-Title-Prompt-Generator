@@ -154,7 +154,7 @@ const PROMPT_TEMPLATES = [
       color: "non-gradient color, Balanced Contrast, Clear Tone, Consistent Harmony, Unified Finish, Visual Balance",
       background: "solid single color, Clean Plane, Neutral Surface, Clear Structure, Minimal Noise, Stable Focus",
       mood: "Clean, Typographic, Structured, Modern, Refined",
-      style: "style vector detail : Typographic (Bold Letterforms, Grid Alignment, Minimal Decoration, Clear Hierarchy, Modern Balance)"
+      style: "style vector detail : Typographic (Bold Letterforms, GridAlignment, Minimal Decoration, Clear Hierarchy, Modern Balance)"
     },
     {
       color: "non-gradient color, Balanced Tone, Clear Harmony, Subtle Contrast, Unified Finish, Visual Purity",
@@ -263,6 +263,79 @@ const handleApiError = (error: unknown): never => {
     throw new Error("Terjadi kesalahan tak terduga. Silakan coba lagi.");
 };
 
+export const generateTrendKeywords = async (apiKey: string): Promise<string> => {
+    if (!apiKey) throw new Error("API key is not set.");
+    const ai = new GoogleGenAI({ apiKey });
+  
+    const currentDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
+
+    const prompt = `You are a microstock trend analyst with deep expertise in Shutterstock and Adobe Stock. Your task is to identify EXACTLY 10 high-demand keywords that will be trending or are consistently popular, starting from today, ${currentDate}.
+
+**Analysis Criteria:**
+1.  **Forward-Looking (8 Keywords):** Analyze upcoming seasons, holidays (like Halloween, Christmas, Diwali, Hanukkah), and global events. Predict what designers and marketers will be searching for soon. Include at least one keyword that is not event-based but represents a popular aesthetic or concept (e.g., 'Cottagecore', 'Abstract 3D shapes').
+2.  **Evergreen Birthday Themes (2 Keywords):** Your list MUST include two distinct, commercially popular birthday-themed keywords. These are essential as they are in demand year-round. Examples: 'Kids Birthday Party', 'Cute Animal Birthday'.
+3.  **Platform Relevance:** Focus on concepts that are commercially viable and popular on Shutterstock and Adobe Stock.
+4.  **Conciseness:** Each keyword should be a short, descriptive phrase of 2-4 words.
+
+**!! CRITICAL OUTPUT FORMAT !!**
+- Your entire response MUST be a single line of text.
+- It must contain EXACTLY 10 keywords, separated by a comma.
+- **DO NOT** add any introductory text, explanations, numbers, bullet points, or markdown formatting.
+
+**Example of a perfect response:**
+Cozy Fall Aesthetic, Minimalist Christmas, Cyber Monday Deals, Hanukkah Dreidels, Diwali Lanterns, Abstract 3D Shapes, AI Technology Concept, Winter Solstice, Kids Birthday Party, Cute Animal Birthday
+
+**Your Mission:**
+Generate the 10 keywords now, ensuring 2 are birthday-themed.`;
+  
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt
+      });
+      return response.text.trim();
+    } catch (error) {
+      handleApiError(error);
+    }
+};
+
+export const generateUniqueKeywords = async (baseKeywords: string, apiKey: string): Promise<string> => {
+    if (!apiKey) throw new Error("API key is not set.");
+    const ai = new GoogleGenAI({ apiKey });
+
+    const prompt = `You are a creative director for a microstock agency, an expert at creating commercially successful niche concepts.
+    
+    **Theme:** "${baseKeywords}"
+
+    **Your Task:**
+    Generate EXACTLY ONE common, popular, and commercially relevant keyword to combine with the theme. This new keyword should be a popular search term itself but create a unique, marketable, and eye-catching vector illustration concept when combined.
+    
+    **!! CRITICAL CONSTRAINTS !!**
+    1.  **Avoid Absurdity:** The keyword should be common and easily recognizable (e.g., 'cats', 'botanical', 'technology', 'food'). Do not use overly obscure, abstract, or nonsensical words. The goal is a creative combination of popular topics.
+    2.  **Format:** Return ONLY the single new keyword (e.g., "botanical").
+    3.  **Brevity:** The keyword must be a single word.
+    4.  **Exclusivity:** DO NOT include the original keywords in your response.
+    5.  **Clean Output:** DO NOT add any explanation, introductory text, or markdown formatting.
+
+    **Examples of Excellent Responses (Creative but not Absurd):**
+    - Theme: "Vintage Floral Pattern" -> Response: "insects"
+    - Theme: "Cyber Monday Banners" -> Response: "origami"
+    - Theme: "Minimalist Christmas Background" -> Response: "geometric"
+
+    Generate the single keyword for the theme "${baseKeywords}" now.`;
+    
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt
+        });
+        return response.text.trim().replace(/\*/g, '');
+    } catch (error) {
+        handleApiError(error);
+    }
+};
+
+
 export const generateTitle = async (keyword: string, apiKey: string): Promise<string> => {
   if (!apiKey) throw new Error("API key is not set.");
   const ai = new GoogleGenAI({ apiKey });
@@ -280,38 +353,33 @@ The title must consist of **three distinct parts, separated by a period (.)**. Y
 
 **Your Process:**
 
-1.  **Analyze Keywords:** Identify the main subject, and overall idea from the user's keywords.
+1.  **Analyze All Keywords:** Identify the main subject, theme, atmosphere, and any supporting elements from the user's keywords. Your goal is to intelligently incorporate **all concepts** from the user's input across the three parts of the title.
 2.  **Construct the 3-Part Title:**
 
-    *   **Part 1: Thematic Statement.**
-        *   This is a short, powerful phrase that captures the main idea or occasion.
-        *   **Crucially, DO NOT use instructional words like "theme", "event", or "sub-category" in your actual response.**
-        *   *Example for 'Christmas, Festive':* "Festive Christmas Holiday Celebration."
+    *   **Part 1: Thematic Introduction.**
+        *   This part **MUST** follow the structure: "[atmosphere] [main theme] pattern vector."
+        *   The [atmosphere] should be a single descriptive word (e.g., 'cozy', 'winter', 'happy', 'cute').
+        *   The [main theme] is the core idea from the user's keywords (e.g., 'Christmas', 'birthday', 'valentine').
+        *   The phrase **MUST** end with the words "pattern vector."
+        *   *Example for 'Christmas, Festive, Tree':* "Festive Christmas pattern vector."
+        *   *Example for 'Birthday, Pet, Cute':* "Cute Birthday Pet pattern vector."
 
     *   **Part 2: Descriptive Core.**
-        *   This part describes the visual elements. It **MUST** contain the word "seamless".
-        *   **CRITICAL: Your primary goal is to create VARIETY. Do not use the same structure for every title.**
-        *   **CRITICAL: DO NOT start this phrase with the article 'A'.**
-        *   It **MUST** mention the main subject from the keywords PLUS 2-3 other relevant supporting elements.
-        *   **CRITICAL: List elements directly. DO NOT use descriptive adjectives like 'flying', 'glowing', or 'shimmering'.** For example, use "reindeer, moon, and stars", not "flying reindeer, glowing moon, and shimmering stars".
-        *   If the user's keywords are broad (like 'Christmas'), you MUST brainstorm and add specific, popular elements (e.g., 'gingerbread', 'candy canes', 'snowflakes').
-        *   **Here is a list of excellent, varied structures. Use them as inspiration to create diverse and natural-sounding descriptions:**
-            *   "Seamless [main subject] pattern with [element 2] and [element 3]."
-            *   "Seamless pattern featuring [main subject], [element 2], and [element 3]."
-            *   "Seamless [main subject] and [element 2] pattern with [element 3]."
-            *   "Seamless [main subject] background with [element 2] and [element 3] accents."
-            *   "Vector seamless pattern of [main subject] with [element 2] and [element 3]."
-            *   "Seamless illustration pattern of [main subject], [element 2], and [element 3]."
-            *   "Seamless [main subject] print featuring [element 2] and [element 3]."
-            *   "Seamless pattern of [main subject] with [element 2] and [element 3] details."
-            *   "Seamless [main subject] motif with [element 2] and [element 3]."
-            *   "Seamless pattern design with [main subject], [element 2], and [element 3]."
-        *   *Example based on 'Christmas Tree':* "Seamless Christmas tree pattern with gingerbread cookies and candy canes."
+        *   This part describes the visual elements. It **MUST** contain the word "seamless" and "pattern".
+        *   The structure **MUST** be: "Seamless [main subject] pattern with [element], [element], and [element]."
+        *   **CRITICAL: DO NOT use the phrase "pattern of". The structure must be "[subject] pattern".**
+        *   Use the main visual subject and other visual elements from the user's keywords here.
+        *   **CRITICAL: All elements (the main subject and supporting elements) must be single nouns ONLY. List elements directly.** For example, use "reindeer, moon, stars", not "flying reindeer, glowing moon, shimmering stars".
+        *   **CRITICAL: The connecting word between the main subject and supporting elements MUST be "with".** Do not use "featuring," "and," or other variations.
+        *   If the user's keywords are broad (like 'Christmas'), you MUST brainstorm and add specific, popular single-noun elements for the supporting elements (e.g., 'gingerbread', 'candy cane', 'snowflake').
+        *   *Example based on 'Christmas Tree':* "Seamless Christmas tree pattern with gingerbread, candy cane, and snowflake."
 
-    *   **Part 3: Application Only.**
-        *   Describe **ONLY** the potential uses for the illustration. **DO NOT mention the style** (e.g., do not use words like 'vector', 'cartoon', 'whimsical', 'flat design').
-        *   Mention common uses like 'textile print', 'wrapping paper', 'fabric design', 'holiday background', 'wallpaper'.
-        *   *Example:* "For textile print, fabric design, and festive wrapping paper background."
+    *   **Part 3: Concluding Phrase.**
+        *   A short, descriptive summary phrase that reinforces the theme. Use any remaining thematic keywords here.
+        *   It must act as a strong, keyword-rich conclusion, often ending with words like "Background", "Pattern", or "Design".
+        *   **CRITICAL: DO NOT describe applications or uses (e.g., do not use "for textile print").**
+        *   **DO NOT start with the word "For".**
+        *   *Examples:* "Merry Christmas Gifting Seamless Pattern Background.", "Cute Animal Birthday Party Pattern.", "Festive Holiday Seamless Background."
 
 **Your Mission:**
 Apply this exact process to the keywords: '${keyword}'. Generate one single, high-quality, three-part title, strictly adhering to all critical constraints.`;
@@ -329,24 +397,71 @@ Apply this exact process to the keywords: '${keyword}'. Generate one single, hig
   }
 };
 
-const conceptSchema = {
-    type: Type.OBJECT,
-    properties: {
-      concept: { type: Type.STRING, description: "A short descriptive sentence with 1 main element and 2 supporting elements from the title. It must not contain the words 'seamless', 'pattern', or 'illustration'." },
+export const changeTitleElements = async (currentTitle: string, apiKey: string): Promise<string> => {
+    if (!apiKey) throw new Error("API key is not set.");
+    const ai = new GoogleGenAI({ apiKey });
+
+    const prompt = `You are an expert microstock title editor. Your task is to revise a given 3-part title by changing ONLY the supporting descriptive elements in the second part, while keeping the main subject and overall structure intact.
+
+**Original Title to Revise:**
+"${currentTitle}"
+
+**Your Process:**
+1.  **Analyze:** Identify the main subject (e.g., 'Christmas Tree') and the supporting elements (e.g., 'gingerbread', 'candy canes') from the second part of the title.
+2.  **Preserve Structure:** Keep Part 1 (Thematic Introduction) and Part 3 (Concluding Phrase) almost exactly the same as the original. Minor, natural-sounding variations are acceptable if necessary.
+3.  **Revise Core Description (Part 2):**
+    *   Replace the original supporting elements with **two or three new, different, but equally popular and relevant single-noun elements** that fit the main subject.
+    *   Maintain the strict structure: "Seamless [main subject] pattern with [new element], [new element], and [new element]."
+    *   **CRITICAL: DO NOT use the phrase "pattern of". The structure must be "[subject] pattern".**
+    *   **CRITICAL: The new elements must be single nouns.** (e.g., "reindeer", "snowflake", not "flying reindeer").
+
+**!! CRITICAL CONSTRAINTS !!**
+- The entire revised title **MUST NOT EXCEED 170 characters**.
+- The output MUST be a single, clean string with **NO MARKDOWN FORMATTING**.
+- **DO NOT change the main subject.**
+- The new elements must be different from the ones in the original title.
+
+**Example:**
+- **Original:** "Festive Christmas pattern vector. Seamless Christmas tree pattern with gingerbread and candy canes. Merry Christmas Seamless Pattern Background."
+- **Excellent Revision:** "Festive Christmas pattern vector. Seamless Christmas tree pattern with reindeer and snowflakes. Merry Christmas Seamless Pattern Background."
+
+Now, apply this exact process to revise the title: "${currentTitle}"`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt
+        });
+        const title = response.text.trim().replace(/\*/g, '');
+        return title.replace(/\.(?!\s|$)/g, '. ');
+    } catch (error) {
+        handleApiError(error);
     }
 };
-
 
 export const generateJsonPrompt = async (title: string, apiKey: string): Promise<JsonPrompt> => {
     if (!apiKey) throw new Error("API key is not set.");
     const ai = new GoogleGenAI({ apiKey });
 
-    const prompt = `Based on the microstock title "${title}", generate a JSON object with just one key: "concept".
+    const prompt = `You are a creative AI art director. Your task is to expand a simple, SEO-friendly microstock title into a rich, descriptive "concept" for an AI image generator.
 
-    1.  **concept**: Create a descriptive sentence using the main subject and two supporting elements from the title. DO NOT use the words "seamless", "pattern", or "illustration".
-        *   Example for title "Christmas Tree Pattern...": "Cute festive Christmas Tree with reindeer and mountain."
-    
-    The entire response must be a single, valid JSON object containing only the "concept" field.`;
+**Microstock Title:** "${title}"
+
+**Your Process:**
+1.  **Identify Core Elements:** From the second part of the title, identify the main subject and the simple, single-noun supporting elements (e.g., subject: 'bird', elements: 'leaf', 'branch').
+2.  **Elaborate Creatively:** Create a single, descriptive sentence for the "concept". In this sentence, you MUST add descriptive adjectives and richer context to the simple nouns. Transform the basic elements into a vivid scene.
+    *   **CRITICAL:** This is where you add the creativity that was forbidden in the title.
+    *   You can use phrases like "featuring," "with a combination of," etc.
+    *   Example Transformation:
+        *   Title Elements: 'bird, leaf, branch'
+        *   **Excellent "concept":** "A cute flying bird featuring a combination of autumn leaves and a cozy tree branch."
+        *   Title Elements: 'Christmas tree, gingerbread, candy cane'
+        *   **Excellent "concept":** "A delightful Christmas tree scene, with festive gingerbread cookies and sweet candy canes."
+3.  **Constraints:**
+    *   The "concept" MUST NOT contain the words "seamless," "pattern," or "illustration."
+    *   The entire output must be a single, valid JSON object containing only the "concept" field.
+
+Generate the JSON "concept" now based on the title.`;
 
     try {
         const response = await ai.models.generateContent({
@@ -354,7 +469,13 @@ export const generateJsonPrompt = async (title: string, apiKey: string): Promise
             contents: prompt,
             config: {
                 responseMimeType: "application/json",
-                responseSchema: conceptSchema
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                      concept: { type: Type.STRING },
+                    },
+                    required: ["concept"],
+                }
             }
         });
 
@@ -381,31 +502,32 @@ export const changeColor = async (currentPrompt: JsonPrompt, apiKey: string): Pr
     if (!apiKey) throw new Error("API key is not set.");
     const ai = new GoogleGenAI({ apiKey });
 
-    const prompt = `You are an expert in visual design and color theory. Your task is to generate a new color palette, background description, and mood based on an existing art prompt, while strictly adhering to specific constraints.
+    const prompt = `You are an AI specializing in creating MAXIMUM IMPACT color palettes. Your task is to generate a new, HYPER-SATURATED and ELECTRIC color palette, background, and mood. The goal is 100% color boost, pure energy, and zero subtlety.
 
 **Existing Prompt Context:**
 - **Concept:** "${currentPrompt.concept}"
 - **Style:** "${currentPrompt.style}"
 
 **Your Task:**
-Generate a JSON object with new values for "color", "background", and "mood" that are thematically consistent with the provided concept and style.
+Generate a JSON object with new values for "color", "background", and "mood". The new palette MUST be EXPLOSIVELY VIBRANT, with MAXIMUM SATURATION and an almost NEON glow. It must be impossible to ignore.
 
-**Strict Constraints:**
-1.  **color:**
+**!! CRITICAL CONSTRAINTS !!**
+1.  **Absolutely NO subtle, pastel, muted, desaturated, or faded colors.** The output should feel like it's glowing.
+2.  **color:**
     *   The description MUST start with the exact phrase "non-gradient color".
-    *   It must describe a color palette that fits the given style (e.g., if the style is 'Kawaii', the colors should be soft and cute; if it's 'Pop Art', they should be bold and vibrant).
-    *   Do NOT mention specific color names (e.g., "red", "blue"). Describe the feeling or quality of the colors.
-2.  **background:**
+    *   It must describe a palette of pure, intense, high-energy colors. Use words like 'electric', 'luminous', 'hyper-saturated', 'vivid'.
+    *   Do NOT mention specific color names (e.g., "red", "blue").
+3.  **background:**
     *   The description MUST include the exact phrase "solid single color".
-    *   It should describe a background that complements the concept and new color palette.
-3.  **mood:**
-    *   Provide a list of 4-5 adjectives describing the mood that aligns with the new color and background, as well as the original style.
+    *   It should describe a background that amplifies the intensity of the main palette.
+4.  **mood:**
+    *   Provide a list of 4-5 adjectives reflecting extreme energy and vibrancy.
 
-**Example Output Format (for a 'Pop Art' style):**
+**Example of a MAXIMUM VIBRANCY Output:**
 {
-  "color": "non-gradient color, Bold Contrast, Vivid Intensity, Unified Palette, Graphic Clarity",
-  "background": "solid single color, Smooth Surface, Clear Focus, Minimal Texture, Balanced Space",
-  "mood": "Energetic, Bold, Playful, Confident, Expressive"
+  "color": "non-gradient color, Electric Neon Hues, Hyper-Saturated Tones, Luminous Contrast, Maximum Vibrancy, High-Energy Palette",
+  "background": "solid single color, Intense High-Gloss Surface, Pure Energy Focus, Zero Distractions",
+  "mood": "Electric, Dynamic, Hypnotic, Bold, Unforgettable"
 }
 
 **Important:** The final output must be a single, valid JSON object with only the "color", "background", and "mood" keys.`;
@@ -472,12 +594,13 @@ You MUST select a style from the provided list or a style that is conceptually v
 *   Trompe L'oeil (Illusory, Realistic Depth)
 *   Ukiyo-e Modernism (Japanese Woodblock, Flat Colors)
 
-Also generate a new matching color palette, background, and mood.
+Also generate a new matching color palette, background, and mood. The color palette must have MAXIMUM VIBRANCY and be HYPER-SATURATED, glowing with energy.
+
 Strictly follow this example format:
-- "style": A specific art style with four characteristics. The format must be: 'Style Vector minimalist Pure : [Style Name] ([Characteristic 1], [Characteristic 2]), [Characteristic 3], [Characteristic 4]'. Example: "Style Vector minimalist Pure : Art Deco (Glamorous, Geometric), symmetrical, elegant"
-- "color": A descriptive phrase for a vibrant, strong, non-gradient color palette. Avoid overusing 'warm' tones. DO NOT mention specific colors. Example: "cool and sophisticated jewel tones"
+- "style": A specific art style with four characteristics. The format must be: 'style vector detail : [Style Name] ([Characteristic 1], [Characteristic 2], [Characteristic 3], [Characteristic 4])'. Example: "style vector detail : Art Deco (Glamorous Forms, Geometric Precision, Symmetrical Layout, Elegant Lines)"
+- "color": A descriptive phrase for a non-gradient color palette. It MUST start with "non-gradient color". The palette must be EXPLOSIVELY VIBRANT and HYPER-SATURATED. It must NOT mention specific colors. Example: "non-gradient color, Electric Neon Palette, Luminous High-Contrast, Hyper-Saturated Tones"
 - "background": A descriptive phrase for a clean, single-color background that MUST include the phrase 'solid single color'. DO NOT mention specific colors. Example: "clean, bold, solid single color background"
-- "mood": A list of moods that fit the new new style. Example: "elegant, luxurious, sophisticated, modern"
+- "mood": A list of moods that fit the new new style. Example: "energetic, luxurious, sophisticated, modern"
 
 Return only a JSON object with "style", "color", "background", and "mood" fields.`;
     
