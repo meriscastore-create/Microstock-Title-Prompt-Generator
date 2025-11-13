@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { JsonPrompt } from './types';
 import * as geminiService from './services/geminiService';
 
@@ -164,6 +164,9 @@ const App: React.FC = () => {
     
     const [showSuggestionArea, setShowSuggestionArea] = useState<boolean>(false);
     const [isCombining, setIsCombining] = useState<boolean>(false);
+    const [styleHistory, setStyleHistory] = useState<string[]>([]);
+
+    const styleRequestRef = useRef(0);
 
 
     useEffect(() => {
@@ -200,7 +203,9 @@ const App: React.FC = () => {
         try {
             return await apiFunc();
         } catch (e: any) {
-            addToast(e.message || 'An unknown error occurred.', 'error');
+             if (e.message !== "Request aborted by user.") {
+                addToast(e.message || 'An unknown error occurred.', 'error');
+            }
             if (e.message.toLowerCase().includes('api key')) {
                 setIsApiKeyModalOpen(true);
             }
@@ -220,7 +225,7 @@ const App: React.FC = () => {
         setShowIframe(false);
         setIframeUrl('');
         setShowSuggestionArea(false);
-        // Don't reset baseKeywords here, it's needed for context if user generates after combining.
+        setStyleHistory([]);
 
         const title = await handleApiCall(() => geminiService.generateTitle(userInput, apiKey));
         if(title) {
@@ -238,6 +243,7 @@ const App: React.FC = () => {
         setShowIframe(false);
         setIframeUrl('');
         setShowSuggestionArea(false);
+        setStyleHistory([]);
     };
 
     const handleSuggestKeywords = async () => {
@@ -299,6 +305,7 @@ const App: React.FC = () => {
         setJsonString('');
         setShowIframe(false);
         setIframeUrl('');
+        setStyleHistory([]);
 
         const newTitle = await handleApiCall(() => geminiService.changeTitleElements(generatedTitle, apiKey));
         if (newTitle) {
@@ -311,10 +318,12 @@ const App: React.FC = () => {
     const handleCreateJsonPrompt = async () => {
         if (!generatedTitle) return;
         setIsCreatingPrompt(true);
+        setStyleHistory([]);
         const prompt = await handleApiCall(() => geminiService.generateJsonPrompt(generatedTitle, apiKey));
         if(prompt) {
             setJsonPrompt(prompt);
             setJsonString(formatJsonPrompt(prompt));
+            setStyleHistory([prompt.style]);
         }
         setIsCreatingPrompt(false);
     };
@@ -331,6 +340,7 @@ const App: React.FC = () => {
     const handleCheckKeywords = () => {
         setJsonPrompt(null);
         setJsonString('');
+        setStyleHistory([]);
         const encodedTitle = encodeURIComponent(generatedTitle);
         const url = `https://www.mykeyworder.com/keywords?language=en&tags=${encodedTitle}`;
         setIframeUrl(url);
@@ -341,19 +351,24 @@ const App: React.FC = () => {
         if (!jsonPrompt) return;
         setIsModifying(modificationType);
         
+        const currentRequestId = ++styleRequestRef.current;
+        
         let updatedFields: Partial<JsonPrompt> | null;
         if (modificationType === 'color') {
             updatedFields = await handleApiCall(() => geminiService.changeColor(jsonPrompt, apiKey));
         } else {
-            updatedFields = await handleApiCall(() => geminiService.changeStyle(jsonPrompt, apiKey));
+            updatedFields = await handleApiCall(() => geminiService.changeStyle(jsonPrompt, styleHistory, apiKey));
         }
         
-        if (updatedFields) {
+        if (currentRequestId === styleRequestRef.current && updatedFields) {
             const newPrompt = { ...jsonPrompt, ...updatedFields };
             setJsonPrompt(newPrompt);
             setJsonString(formatJsonPrompt(newPrompt));
+            if (modificationType === 'style' && updatedFields.style) {
+                 setStyleHistory(prev => [...prev, updatedFields.style!]);
+            }
+             setIsModifying(null);
         }
-        setIsModifying(null);
     };
 
     const titleCharCount = generatedTitle.length;
@@ -537,7 +552,7 @@ const App: React.FC = () => {
                                     <button onClick={() => handleModifyPrompt('color')} disabled={!!isModifying} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:bg-gray-600 disabled:cursor-not-allowed">
                                         {isModifying === 'color' ? <Spinner /> : <MagicWandIcon />} Change Color
                                     </button>
-                                    <button onClick={() => handleModifyPrompt('style')} disabled={!!isModifying} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:bg-gray-600 disabled:cursor-not-allowed">
+                                    <button onClick={() => handleModifyPrompt('style')} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
                                        {isModifying === 'style' ? <Spinner /> : <MagicWandIcon />} Change Style
                                     </button>
                                     <button onClick={() => handleCopy(jsonString, 'prompt')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">

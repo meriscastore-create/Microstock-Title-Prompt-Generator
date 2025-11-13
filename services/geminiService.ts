@@ -7,6 +7,9 @@ const FIXED_SETTINGS = "--ar 1:1 --v 6 --style raw --q 2 --repeat 2";
 const handleApiError = (error: unknown): never => {
     console.error("Gemini API Error:", error);
     if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+            throw new Error("Request aborted by user.");
+        }
         const lowerCaseMessage = error.message.toLowerCase();
         if (lowerCaseMessage.includes('api key not valid') || lowerCaseMessage.includes('permission denied')) {
              throw new Error("Your API key seems to be invalid or lacks permissions. Please enter a valid key.");
@@ -204,8 +207,12 @@ export const generateJsonPrompt = async (title: string, apiKey: string): Promise
 
 **Your Process:**
 1.  **Analyze Theme:** Deeply analyze the title to understand its core theme, subject matter, and mood (e.g., 'Christmas', 'vintage', 'cute animal').
-2.  **Select the Perfect Style:** Choose the most commercially appealing and artistically appropriate vector style for this theme. Your choice should be from a wide range of styles like Flat Graphic, Kawaii, Art Deco, Memphis Style, etc.
-3.  **Generate a VIBRANT Palette:** Create a matching color palette. It MUST be vibrant and eye-catching.
+2.  **Select the Perfect Style:**
+    *   Choose the most commercially appealing and artistically appropriate vector-friendly style for this theme.
+    *   **CRITICAL STYLE CONSTRAINTS:** AVOID photorealistic, 3D rendering, complex shading, or painterly styles (like watercolor, oil painting). Focus on styles that work well as clean, scalable vector graphics (e.g., Flat Graphic, Kawaii, Art Deco, Line Art, Memphis).
+3.  **Generate a VIBRANT & DIVERSE Palette:**
+    *   Create a matching color palette. It MUST be vibrant, eye-catching, and thematically appropriate.
+    *   **CRITICAL COLOR CONSTRAINT:** Do not default to blue-dominant palettes unless the theme explicitly requires it (e.g., 'ocean life'). Strive for color diversity.
 4.  **Construct the JSON:** Generate a single, valid JSON object with five fields: "concept", "color", "background", "mood", and "style".
 
 **!! CRITICAL JSON FIELD CONSTRAINTS !!**
@@ -328,55 +335,53 @@ Generate a JSON object with new values for "color", "background", and "mood". Th
     }
 };
 
-export const changeStyle = async (currentPrompt: JsonPrompt, apiKey: string): Promise<Partial<JsonPrompt>> => {
+export const changeStyle = async (currentPrompt: JsonPrompt, previousStyles: string[], apiKey: string): Promise<Partial<JsonPrompt>> => {
     if (!apiKey) throw new Error("API key is not set.");
     const ai = new GoogleGenAI({ apiKey });
     
-    const prompt = `Based on the existing AI prompt's concept:
-- Concept: "${currentPrompt.concept}"
+    const prompt = `You are an expert AI Art Director. Your mission is to generate a new, compelling, and commercially viable artistic direction for a given concept, ensuring it is distinct from styles already attempted.
 
-The current style is "${currentPrompt.style}". Generate a completely new and different style from the current one. The new style MUST be elegant, minimalist, or abstract and suitable for vectorization. AVOID painterly styles like watercolor, oil painting, or heavy textures.
+**Core Concept:**
+"${currentPrompt.concept}"
 
-You MUST select a style from the provided list or a style that is conceptually very similar.
+**Styles Already Attempted (DO NOT REPEAT):**
+${previousStyles.map(s => `- ${s}`).join('\n')}
 
-**Curated Style List (Choose One):**
+**Your Task:**
+Generate a completely new and different style, along with a matching color palette, background, and mood.
 
-**Geometric & Abstract:**
-*   Bauhaus (Functional, Geometric Purity)
-*   Memphis Design (Postmodern, Bold & Quirky)
-*   Swiss International Style (Grid-based, Clean Typography)
-*   Art Deco (Elegant, Symmetrical, Luxurious)
-*   Cubism (Fragmented, Multi-perspective)
-*   Geometric Abstraction (Shapes, Lines, Forms)
-*   Low Poly (Faceted, Digital Aesthetic)
-*   Flat Isometric (2.5D, Clean & Technical)
+**!! CRITICAL CONSTRAINTS !!**
+1.  **Style Uniqueness:** The new style **MUST BE SUBSTANTIALLY DIFFERENT** from all styles in the "Already Attempted" list.
+2.  **Vector & Raster Friendliness:** The style **MUST** be suitable for clean, scalable vector illustration.
+    *   **AVOID:** Photorealistic rendering, 3D styles, complex gradients, heavy textures, painterly effects (e.g., watercolor, oil).
+    *   **FAVOR:** Flat graphics, line art, geometric styles, stylized illustrations (e.g., Art Deco, Memphis, Ukiyo-e, Corporate Membranism, Modern Folk Art).
+3.  **Color Diversity & Vibrancy:**
+    *   Generate an EXPLOSIVELY VIBRANT and HYPER-SATURATED color palette that matches the new style.
+    *   **DO NOT** default to a blue-heavy palette unless the concept demands it. Be creative and diverse with color.
 
-**Minimalist & Line Art:**
-*   Minimalist Line Art (Single Weight, Expressive)
-*   Continuous Line Drawing (One-line, Fluid)
-*   Japanese Zen Minimalism (Simplicity, Negative Space)
-*   Scandinavian Design (Hygge, Clean, Functional)
-*   Stipple Art (Dot-based Shading, Engraved Look)
-*   Outline Style (Bold Outlines, Minimal Fill)
+**Required JSON Output Format:**
+You must return a single, valid JSON object with "style", "color", "background", and "mood" fields.
 
-**Modern & Stylized:**
-*   Corporate Membranism (Soft UI, Subtle Shadows)
-*   Synthwave & Outrun (80s Retro, Neon Grids)
-*   Psychedelic Art (Swirling, Distorted, Vibrant)
-*   Modern Folk Art (Simplified, Decorative, Storytelling)
-*   Abstract Organic (Flowing, Nature-inspired Shapes)
-*   Trompe L'oeil (Illusory, Realistic Depth)
-*   Ukiyo-e Modernism (Japanese Woodblock, Flat Colors)
+*   **style:** A specific art style with four characteristics.
+    *   Format: \`style vector detail : [Style Name] ([Characteristic 1], [Characteristic 2], [Characteristic 3], [Characteristic 4])\`
+    *   *Example:* "style vector detail : Art Deco (Glamorous Forms, Geometric Precision, Symmetrical Layout, Elegant Lines)"
 
-Also generate a new matching color palette, background, and mood. The color palette must have MAXIMUM VIBRANCY and be HYPER-SATURATED, glowing with energy.
+*   **color:** A descriptive phrase for a non-gradient color palette.
+    *   **MUST** start with "non-gradient color".
+    *   **MUST** describe a VIBRANT, HYPER-SATURATED palette.
+    *   **DO NOT** mention specific color names.
+    *   *Example:* "non-gradient color, Electric Neon Palette, Luminous High-Contrast, Hyper-Saturated Tones"
 
-Strictly follow this example format:
-- "style": A specific art style with four characteristics. The format must be: 'style vector detail : [Style Name] ([Characteristic 1], [Characteristic 2], [Characteristic 3], [Characteristic 4])'. Example: "style vector detail : Art Deco (Glamorous Forms, Geometric Precision, Symmetrical Layout, Elegant Lines)"
-- "color": A descriptive phrase for a non-gradient color palette. It MUST start with "non-gradient color". The palette must be EXPLOSIVELY VIBRANT and HYPER-SATURATED. It must NOT mention specific colors. Example: "non-gradient color, Electric Neon Palette, Luminous High-Contrast, Hyper-Saturated Tones"
-- "background": A descriptive phrase for a clean, single-color background that MUST include the phrase 'solid single color'. DO NOT mention specific colors. Example: "clean, bold, solid single color background"
-- "mood": A list of moods that fit the new new style. Example: "energetic, luxurious, sophisticated, modern"
+*   **background:** A descriptive phrase for a clean, single-color background.
+    *   **MUST** include the phrase "solid single color".
+    *   **DO NOT** mention specific colors.
+    *   *Example:* "solid single color, high-impact, pure energy focus"
 
-Return only a JSON object with "style", "color", "background", and "mood" fields.`;
+*   **mood:** A list of 4-5 adjectives that fit the new style.
+    *   *Example:* "energetic, luxurious, sophisticated, modern"
+
+**Your Mission:**
+Generate the JSON object for the concept "${currentPrompt.concept}", strictly adhering to all constraints.`;
     
     try {
         const response = await ai.models.generateContent({
