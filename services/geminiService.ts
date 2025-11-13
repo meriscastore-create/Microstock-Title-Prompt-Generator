@@ -27,13 +27,18 @@ export const generateTrendKeywords = async (apiKey: string): Promise<string> => 
   
     const currentDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
 
-    const prompt = `You are a microstock trend analyst with deep expertise in Shutterstock and Adobe Stock. Your task is to identify EXACTLY 10 high-demand keywords that will be trending or are consistently popular, starting from today, ${currentDate}.
+    const prompt = `You are a microstock trend analyst with deep expertise in Shutterstock and Adobe Stock. Your primary goal is to generate keywords that are perfect for creating **commercially successful SEAMLESS PATTERNS**.
+
+Your task is to identify EXACTLY 10 high-demand keywords that will be trending or are consistently popular, starting from today, ${currentDate}.
 
 **Analysis Criteria:**
-1.  **Forward-Looking (8 Keywords):** Analyze upcoming seasons, holidays (like Halloween, Christmas, Diwali, Hanukkah), and global events. Predict what designers and marketers will be searching for soon. Include at least one keyword that is not event-based but represents a popular aesthetic or concept (e.g., 'Cottagecore', 'Abstract 3D shapes').
-2.  **Evergreen Birthday Themes (2 Keywords):** Your list MUST include two distinct, commercially popular birthday-themed keywords. These are essential as they are in demand year-round. Examples: 'Kids Birthday Party', 'Cute Animal Birthday'.
-3.  **Platform Relevance:** Focus on concepts that are commercially viable and popular on Shutterstock and Adobe Stock.
-4.  **Conciseness:** Each keyword should be a short, descriptive phrase of 2-4 words.
+1.  **Seamless Pattern Suitability (CRITICAL):** Every keyword MUST be easily visualizable as a repeating seamless pattern. The concepts should be based on tangible objects or clear visual styles.
+    *   **GOOD EXAMPLES:** 'Cute Dinosaurs', 'Vintage Floral', 'Geometric Abstract', 'Watercolor Lemons'. These are concrete and work well when repeated.
+    *   **BAD EXAMPLES:** 'Sustainable Urban Living', 'Corporate Synergy', 'Future of AI'. These are abstract concepts and are very difficult to translate into a commercially appealing seamless pattern.
+2.  **Forward-Looking (8 Keywords):** Analyze upcoming seasons, holidays (like Halloween, Christmas, Diwali, Hanukkah), and global events. Predict what designers will search for. Include at least one keyword that is not event-based but represents a popular aesthetic (e.g., 'Cottagecore', 'Abstract Shapes').
+3.  **Evergreen Birthday Themes (2 Keywords):** Your list MUST include two distinct, commercially popular birthday-themed keywords suitable for patterns.
+4.  **Platform Relevance:** Focus on concepts that are commercially viable on Shutterstock and Adobe Stock for seamless patterns.
+5.  **Conciseness:** Each keyword should be a short, descriptive phrase of 2-4 words.
 
 **!! CRITICAL OUTPUT FORMAT !!**
 - Your entire response MUST be a single line of text.
@@ -41,10 +46,10 @@ export const generateTrendKeywords = async (apiKey: string): Promise<string> => 
 - **DO NOT** add any introductory text, explanations, numbers, bullet points, or markdown formatting.
 
 **Example of a perfect response:**
-Cozy Fall Aesthetic, Minimalist Christmas, Cyber Monday Deals, Hanukkah Dreidels, Diwali Lanterns, Abstract 3D Shapes, AI Technology Concept, Winter Solstice, Kids Birthday Party, Cute Animal Birthday
+Cozy Fall Aesthetic, Minimalist Christmas, Hanukkah Dreidels, Diwali Lanterns, Abstract Geometric Shapes, Winter Woodland Animals, Kids Birthday Party, Cute Animal Birthday, Spooky Halloween Icons, Vintage Botanical
 
 **Your Mission:**
-Generate the 10 keywords now, ensuring 2 are birthday-themed.`;
+Generate the 10 keywords now, ensuring they are all perfect for seamless patterns and that 2 are birthday-themed.`;
   
     try {
       const response = await ai.models.generateContent({
