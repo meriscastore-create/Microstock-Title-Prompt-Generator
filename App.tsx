@@ -60,10 +60,16 @@ interface Toast {
   type: 'success' | 'error';
 }
 
+interface KeywordSuggestion {
+  name: string;
+  score: number;
+}
+
 interface CategorizedKeywords {
     category: string;
-    keywords: string[];
+    keywords: KeywordSuggestion[];
 }
+
 
 // --- HELPER FUNCTIONS ---
 const formatJsonPrompt = (prompt: JsonPrompt): string => {
@@ -480,25 +486,30 @@ const App: React.FC = () => {
                         </button>
                     </div>
                     
-                    <div className={`transition-[max-height,opacity,margin] duration-500 ease-in-out ${showSuggestionArea ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'} overflow-hidden`}>
-                        {isSuggesting || isProcessingSuggestion ? (
+                    <div className={`transition-[max-height,opacity,margin] duration-500 ease-in-out ${showSuggestionArea ? 'max-h-[1000px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'} overflow-auto`}>
+                        {isSuggesting ? (
                             <div className="flex justify-center items-center py-8">
                                 <Spinner className="h-8 w-8 text-brand-primary" />
                             </div>
                         ) : categorizedKeywords.length > 0 ? (
-                            <div className="text-center">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {categorizedKeywords.map(({ category, keywords }) => (
-                                    <div key={category} className="mb-4 last:mb-0">
-                                        <h3 className="font-bold text-lg mb-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">{category}</h3>
-                                        <div className="flex flex-wrap gap-2 justify-center">
+                                    <div key={category} className="flex flex-col">
+                                        <h3 className="font-bold text-lg mb-3 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">{category}</h3>
+                                        <div className="flex flex-col gap-2">
                                             {keywords.map((keyword, index) => (
                                                 <button
                                                     key={index}
-                                                    onClick={() => handleSelectSuggestedKeyword(keyword)}
+                                                    onClick={() => handleSelectSuggestedKeyword(keyword.name)}
                                                     disabled={isProcessingSuggestion}
-                                                    className="bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-1.5 px-3 rounded-full text-sm transition-colors duration-200 disabled:opacity-50 disabled:cursor-wait"
+                                                    className="group flex items-center justify-between text-left w-full bg-gray-800/50 hover:bg-gray-700/80 p-3 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-wait"
                                                 >
-                                                    {keyword}
+                                                    <span className="text-light-text group-hover:text-white transition-colors">{keyword.name}</span>
+                                                    <span className={`font-mono text-sm font-semibold ${
+                                                        keyword.score >= 85 ? 'text-green-300' : keyword.score >= 70 ? 'text-yellow-300' : 'text-purple-300'
+                                                    }`}>
+                                                      {keyword.score}%
+                                                    </span>
                                                 </button>
                                             ))}
                                         </div>

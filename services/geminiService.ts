@@ -21,13 +21,13 @@ const handleApiError = (error: unknown): never => {
     throw new Error("Terjadi kesalahan tak terduga. Silakan coba lagi.");
 };
 
-export const generateTrendKeywords = async (apiKey: string): Promise<Array<{ category: string; keywords: string[] }>> => {
+export const generateTrendKeywords = async (apiKey: string): Promise<Array<{ category: string; keywords: Array<{ name: string; score: number }> }>> => {
     if (!apiKey) throw new Error("API key is not set.");
     const ai = new GoogleGenAI({ apiKey });
   
     const currentDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
 
-    const prompt = `You are a top-tier microstock trend analyst for a vector artist who creates **commercially successful SEAMLESS PATTERNS**. Your task is to generate 10 high-demand keyword ideas, perfectly categorized for quick selection.
+    const prompt = `You are a top-tier microstock trend analyst for a vector artist who creates **commercially successful SEAMLESS PATTERNS**. Your task is to generate 15 high-demand keyword ideas, perfectly categorized, each with a trend score.
 
 **CRITICAL RULES - FOLLOW THESE EXACTLY:**
 
@@ -35,38 +35,44 @@ export const generateTrendKeywords = async (apiKey: string): Promise<Array<{ cat
     *   **PERFECT EXAMPLES:** 'Cute Halloween Ghosts', 'Vintage Botanical Flowers', 'Kawaii Birthday Cats', 'Geometric Memphis Shapes'.
     *   **FORBIDDEN ABSTRACT CONCEPTS:** Do NOT suggest themes like 'AI Technology Future', 'Sustainable Living', or any other idea that is not a visual object or a clear, repeatable style. This is your most important constraint.
 
-2.  **STRICT CATEGORIZATION:** You must generate keywords for the following three categories with the exact number of keywords specified for each.
+2.  **STRICT CATEGORIZATION & COUNT:** You must generate keywords for the following three categories with **EXACTLY 5 keywords per category**.
 
-    *   **Holiday / Seasonal (4 keywords):** Focus on upcoming major holidays and seasons from today, ${currentDate}.
-    *   **Evergreen (2 keywords):** Focus on consistently popular, non-seasonal themes. Exactly two keywords MUST be distinct, popular birthday themes.
-    *   **Trending Style (4 keywords):** Focus on popular aesthetic styles or motifs that are not tied to a specific holiday (e.g., 'Abstract Organic Shapes', 'Cottagecore').
+    *   **Holiday / Seasonal (5 keywords):** Focus on upcoming major holidays and seasons from today, ${currentDate}.
+    *   **Evergreen (5 keywords):** Focus on consistently popular, non-seasonal themes. At least two keywords MUST be distinct, popular birthday themes.
+    *   **Trending Style (5 keywords):** Focus on popular aesthetic styles or motifs that are not tied to a specific holiday.
 
-3.  **CONCISE:** Each keyword should be a 2-4 word phrase.
+3.  **TREND SCORE:** For each keyword, you MUST provide a "Trend Score." This is a percentage (e.g., "85%") that represents your expert analysis of its current demand and commercial viability in the microstock marketplace. Higher percentages mean higher demand.
 
 **OUTPUT FORMAT - THIS IS CRITICAL:**
 - Your entire response MUST be in markdown format.
-- Use a level 3 heading (###) for each category title, exactly as written below.
+- Use a level 3 heading (###) for each category title.
 - Use a hyphen (-) for each keyword.
+- The keyword and its score MUST be separated by " :: ".
 - Do not add any introductory text, explanations, or concluding remarks.
 
 **Example of a perfect response:**
 ### Holiday / Seasonal
-- Cozy Fall Aesthetic
-- Spooky Halloween Icons
-- Minimalist Christmas
-- Hanukkah Dreidels
+- Cozy Fall Aesthetic :: 90%
+- Spooky Halloween Icons :: 85%
+- Minimalist Christmas :: 80%
+- Hanukkah Dreidels :: 65%
+- Lunar New Year Dragons :: 75%
 
 ### Evergreen
-- Kids Dino Birthday
-- Cute Animal Birthday
+- Kids Dino Birthday :: 95%
+- Cute Animal Birthday :: 90%
+- Vintage Botanical Flowers :: 88%
+- Coffee Shop Doodles :: 80%
+- Gamer Patterns :: 70%
 
 ### Trending Style
-- Abstract Geometric Shapes
-- Vintage Botanical
-- Y2K Aesthetic
-- Cottagecore Florals
+- Abstract Geometric Shapes :: 92%
+- Y2K Aesthetic :: 85%
+- Cottagecore Florals :: 82%
+- Dark Academia :: 78%
+- Corporate Membranism :: 60%
 
-Generate the 10 categorized keywords now.`;
+Generate the 15 categorized keywords with their trend scores now.`;
   
     try {
       const response = await ai.models.generateContent({
@@ -75,8 +81,8 @@ Generate the 10 categorized keywords now.`;
       });
       
       const text = response.text.trim();
-      const categories: Array<{ category: string; keywords: string[] }> = [];
-      let currentCategory: { category: string; keywords: string[] } | null = null;
+      const categories: Array<{ category: string; keywords: Array<{ name: string; score: number }> }> = [];
+      let currentCategory: { category: string; keywords: Array<{ name: string; score: number }> } | null = null;
 
       text.split('\n').forEach(line => {
         const trimmedLine = line.trim();
@@ -89,7 +95,15 @@ Generate the 10 categorized keywords now.`;
             keywords: []
           };
         } else if (trimmedLine.startsWith('- ') && currentCategory) {
-          currentCategory.keywords.push(trimmedLine.substring(2).trim());
+          const content = trimmedLine.substring(2).trim();
+          const parts = content.split('::');
+          if (parts.length === 2) {
+              const name = parts[0].trim();
+              const score = parseInt(parts[1].trim().replace('%', ''), 10);
+              if (name && !isNaN(score)) {
+                  currentCategory.keywords.push({ name, score });
+              }
+          }
         }
       });
 
