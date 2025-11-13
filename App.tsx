@@ -196,7 +196,7 @@ const StylePreferencesPopover: React.FC<StylePreferencesPopoverProps> = ({ isOpe
     if (!isOpen) return null;
 
     return (
-        <div ref={popoverRef} className="absolute z-20 mt-2 w-80 sm:w-96 bg-dark-card border border-dark-border rounded-lg shadow-xl p-4 right-0 sm:right-auto sm:left-0 animate-fade-in">
+        <div ref={popoverRef} className="absolute z-20 mt-2 w-80 sm:w-96 bg-dark-card border border-dark-border rounded-lg shadow-xl p-4 right-0 animate-fade-in">
             <div className="flex justify-between items-center mb-3">
                 <h3 className="font-bold text-lg text-light-text">Style Preferences</h3>
                 <button onClick={onClose} className="text-medium-text hover:text-light-text">
@@ -532,29 +532,6 @@ const App: React.FC = () => {
                             )}
                         </div>
                         <div className="flex w-full sm:w-auto gap-4">
-                            <div className="relative">
-                                <button
-                                    ref={preferencesButtonRef}
-                                    onClick={() => setIsPreferencesOpen(prev => !prev)}
-                                    className="flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-md transition duration-200 h-full"
-                                    title="Set Style Preferences"
-                                >
-                                    <SlidersIcon />
-                                    {selectedStylePreferences.length > 0 && (
-                                        <span className="absolute -top-2 -right-2 bg-brand-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                            {selectedStylePreferences.length}
-                                        </span>
-                                    )}
-                                </button>
-                                <StylePreferencesPopover 
-                                    isOpen={isPreferencesOpen}
-                                    onClose={() => setIsPreferencesOpen(false)}
-                                    preferences={STYLE_PREFERENCES}
-                                    selectedPreferences={selectedStylePreferences}
-                                    onToggle={handleTogglePreference}
-                                    anchorRef={preferencesButtonRef}
-                                />
-                            </div>
                              {userInput.trim().length > 0 ? (
                                 <button
                                     onClick={handleCombineKeyword}
@@ -637,27 +614,54 @@ const App: React.FC = () => {
                                     <span className={`text-sm font-mono ${titleCharCountColor}`}>{titleCharCount} / 170 characters</span>
                                 </div>
                                 <p className="text-medium-text mb-4 bg-gray-800 p-4 rounded-md">{generatedTitle}</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                
+                                <div className="flex flex-col sm:flex-row gap-4">
                                     <button
                                         onClick={handleRefreshTitleElements}
                                         disabled={isCreatingPrompt || isRefreshingTitle}
-                                        className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:bg-gray-500"
+                                        className="flex-1 flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 justify-center disabled:bg-gray-500"
                                         title="Refresh title elements"
                                     >
                                         {isRefreshingTitle ? <Spinner /> : <RefreshIcon />} Refresh Elements
                                     </button>
-                                    <button
-                                        onClick={handleCreateJsonPrompt}
-                                        disabled={isCreatingPrompt || isRefreshingTitle}
-                                        className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:bg-gray-500"
-                                    >
-                                        {isCreatingPrompt ? <Spinner /> : <MagicWandIcon />}
-                                        Create JSON
-                                    </button>
-                                    <button onClick={() => handleCopy(generatedTitle, 'title')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
+
+                                    <div className="relative flex w-full flex-1">
+                                        <button
+                                            onClick={handleCreateJsonPrompt}
+                                            disabled={isCreatingPrompt || isRefreshingTitle}
+                                            className="flex-grow flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2 px-4 rounded-l-md transition duration-200 justify-center disabled:bg-gray-500"
+                                        >
+                                            {isCreatingPrompt ? <Spinner /> : <MagicWandIcon />}
+                                            Create JSON
+                                        </button>
+                                        <button
+                                            ref={preferencesButtonRef}
+                                            onClick={() => setIsPreferencesOpen(prev => !prev)}
+                                            className="flex items-center justify-center bg-purple-700 hover:bg-purple-600 border-l border-purple-800 text-white font-bold py-2 px-4 rounded-r-md transition duration-200 h-full"
+                                            title="Set Style Preferences"
+                                        >
+                                            <SlidersIcon />
+                                            {selectedStylePreferences.length > 0 && (
+                                                <span className="absolute -top-2 -right-2 bg-brand-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                                    {selectedStylePreferences.length}
+                                                </span>
+                                            )}
+                                        </button>
+                                        <StylePreferencesPopover 
+                                            isOpen={isPreferencesOpen}
+                                            onClose={() => setIsPreferencesOpen(false)}
+                                            preferences={STYLE_PREFERENCES}
+                                            selectedPreferences={selectedStylePreferences}
+                                            onToggle={handleTogglePreference}
+                                            anchorRef={preferencesButtonRef}
+                                        />
+                                    </div>
+
+                                    <button onClick={() => handleCopy(generatedTitle, 'title')} className="flex-1 flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 justify-center">
                                         <CopyIcon /> Copy Title
                                     </button>
                                 </div>
+
                                 <div className="mt-4">
                                      <button onClick={handleCheckKeywords} className="flex items-center gap-2 bg-indigo-600/50 hover:bg-indigo-500/50 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
                                         <KeywordCheckerIcon /> Check Keywords on MyKeyworder
