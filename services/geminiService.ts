@@ -27,29 +27,36 @@ export const generateTrendKeywords = async (apiKey: string): Promise<string> => 
   
     const currentDate = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format
 
-    const prompt = `You are a microstock trend analyst with deep expertise in Shutterstock and Adobe Stock. Your primary goal is to generate keywords that are perfect for creating **commercially successful SEAMLESS PATTERNS**.
+    const prompt = `You are an AI creative assistant for a vector artist who specializes **exclusively** in creating commercially successful **SEAMLESS PATTERNS** for microstock platforms. Your single most important job is to provide ideas that can be turned into repeating patterns of tangible objects or clear visual styles.
 
-Your task is to identify EXACTLY 10 high-demand keywords that will be trending or are consistently popular, starting from today, ${currentDate}.
+**!! ABSOLUTELY NO ABSTRACT CONCEPTS !!**
 
-**Analysis Criteria:**
-1.  **Seamless Pattern Suitability (CRITICAL):** Every keyword MUST be easily visualizable as a repeating seamless pattern. The concepts should be based on tangible objects or clear visual styles.
-    *   **GOOD EXAMPLES:** 'Cute Dinosaurs', 'Vintage Floral', 'Geometric Abstract', 'Watercolor Lemons'. These are concrete and work well when repeated.
-    *   **BAD EXAMPLES:** 'Sustainable Urban Living', 'Corporate Synergy', 'Future of AI'. These are abstract concepts and are very difficult to translate into a commercially appealing seamless pattern.
-2.  **Forward-Looking (8 Keywords):** Analyze upcoming seasons, holidays (like Halloween, Christmas, Diwali, Hanukkah), and global events. Predict what designers will search for. Include at least one keyword that is not event-based but represents a popular aesthetic (e.g., 'Cottagecore', 'Abstract Shapes').
-3.  **Evergreen Birthday Themes (2 Keywords):** Your list MUST include two distinct, commercially popular birthday-themed keywords suitable for patterns.
-4.  **Platform Relevance:** Focus on concepts that are commercially viable on Shutterstock and Adobe Stock for seamless patterns.
-5.  **Conciseness:** Each keyword should be a short, descriptive phrase of 2-4 words.
+Your task is to generate exactly 10 high-demand keyword ideas that will trend or are consistently popular, starting from today, ${currentDate}.
 
-**!! CRITICAL OUTPUT FORMAT !!**
+**CRITICAL RULES - FOLLOW THESE EXACTLY:**
+
+1.  **PATTERN-FIRST MENTALITY (MOST IMPORTANT RULE):** Every single keyword MUST represent a tangible, drawable concept that works perfectly as a repeating pattern. Think about objects, characters, or distinct visual elements.
+    *   **PERFECT EXAMPLES:** 'Cute Halloween Ghosts', 'Vintage Botanical Flowers', 'Kawaii Birthday Cats', 'Geometric Memphis Shapes', 'Watercolor Lemons'.
+    *   **FORBIDDEN ABSTRACT CONCEPTS:** Do NOT suggest themes like 'AI Technology Future', 'Sustainable Living', 'Corporate Synergy', 'Digital Transformation', or any other idea that is not a visual object or a clear, repeatable style. This is a critical failure if you include abstract ideas.
+
+2.  **COMMERCIAL & TIMELY:**
+    *   **8 Keywords:** Focus on upcoming seasons, major holidays (global and diverse), and popular aesthetic trends (e.g., 'Cottagecore', 'Y2K Aesthetic').
+    *   **2 Keywords:** Exactly two keywords MUST be distinct, popular birthday themes suitable for patterns (e.g., 'Kids Dino Birthday', 'Elegant Birthday Balloons').
+
+3.  **CONCISE:** Each keyword should be a 2-4 word phrase.
+
+**FINAL CHECK:**
+Before you provide your answer, re-read your list. For each keyword, ask yourself: "Can I immediately picture this as a repeating pattern of simple vector objects?" If not, replace it.
+
+**OUTPUT FORMAT:**
 - Your entire response MUST be a single line of text.
-- It must contain EXACTLY 10 keywords, separated by a comma.
-- **DO NOT** add any introductory text, explanations, numbers, bullet points, or markdown formatting.
+- EXACTLY 10 keywords, separated by a comma.
+- No introductions, no explanations, no numbers, no bullet points, no markdown.
 
 **Example of a perfect response:**
-Cozy Fall Aesthetic, Minimalist Christmas, Hanukkah Dreidels, Diwali Lanterns, Abstract Geometric Shapes, Winter Woodland Animals, Kids Birthday Party, Cute Animal Birthday, Spooky Halloween Icons, Vintage Botanical
+Cozy Fall Aesthetic, Spooky Halloween Icons, Hanukkah Dreidels, Diwali Lanterns, Abstract Geometric Shapes, Winter Woodland Animals, Kids Birthday Party, Cute Animal Birthday, Minimalist Christmas, Vintage Botanical
 
-**Your Mission:**
-Generate the 10 keywords now, ensuring they are all perfect for seamless patterns and that 2 are birthday-themed.`;
+Generate the 10 keywords now.`;
   
     try {
       const response = await ai.models.generateContent({
