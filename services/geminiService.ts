@@ -4,251 +4,6 @@ import { JsonPrompt } from '../types';
 const FIXED_COMPOSITION = "Only a few elements are present, Elements randomly ultra airy scattered, not symmetrical, no overlaps or touching. Each stands individually with airy spacing, forming a full, distinct diamond-shaped composition without visible outlines. All elements must fit completely inside the diamond area, no parts cropped or touching edges..";
 const FIXED_SETTINGS = "--ar 1:1 --v 6 --style raw --q 2 --repeat 2";
 
-// --- START: Hardcoded Template Values ---
-const PROMPT_TEMPLATES = [
-    {
-      color: "non-gradient color, Balanced Contrast, Consistent Tone, Unified Palette, Clean Finish, Visual Harmony",
-      background: "solid single color, Smooth Surface, Minimal Distraction, Clear Focus, Stable Visual Base, Simple Depth",
-      mood: "Playful, Expressive, Lighthearted, Creative, Engaging",
-      style: "style vector detail : Kawaii (Rounded Shapes, Clean Lines, Simplified Forms, Minimal Shading, Cute Aesthetic)"
-    },
-    {
-      color: "non-gradient color, Balanced Contrast, Clear Separation, Unified Tone, Consistent Brightness, Gentle Harmony",
-      background: "solid single color, Neutral Surface, Simple Depth, Clear Focus, Soft Composition, Minimal Distraction",
-      mood: "Playful, Youthful, Energetic, Friendly, Fun",
-      style: "style vector detail : Chibi (Exaggerated Proportions, Large Heads, Expressive Faces, Simplified Anatomy, Playful Feel)"
-    },
-    {
-      color: "non-gradient color, Balanced Contrast, Functional Palette, Clear Tone, Stable Finish, Unified Harmony",
-      background: "solid single color, Neutral Base, Visual Stability, Minimal Distraction, Clear Layout, Smooth Surface",
-      mood: "Energetic, Dynamic, Expressive, Cheerful, Fun",
-      style: "style vector detail : Cartoon (Bold Outlines, Dynamic Shapes, Exaggerated Motion, Expressive Characters, Fun Aesthetic)"
-    },
-    {
-      color: "non-gradient color, Balanced Saturation, Subtle Grain, Vintage Tone, Soft Contrast, Clean Separation",
-      background: "solid single color, Neutral Base, Smooth Surface, Simple Layout, Clear Composition, Minimal Texture",
-      mood: "Nostalgic, Playful, Retro, Warm, Cheerful",
-      style: "style vector detail : Retro Cartoon (Thick Lines, Vintage Curves, Simplified Forms, Classic Proportions, Nostalgic Vibe)"
-    },
-    {
-      color: "non-gradient color, Balanced Contrast, Consistent Tone, Unified Palette, Clear Separation, Simple Finish",
-      background: "solid single color, Neutral Field, Minimal Distraction, Clear Focus, Light Surface, Clean Layout",
-      mood: "Creative, Playful, Spontaneous, Expressive, Free",
-      style: "style vector detail : Doodle Art (Freehand Lines, Playful Flow, Irregular Shapes, Spontaneous Energy, Casual Composition)"
-    },
-    {
-      color: "non-gradient color, Soft Contrast, Gentle Tone, Consistent Harmony, Unified Finish, Balanced Depth",
-      background: "solid single color, Clean Surface, Smooth Texture, Minimal Detail, Clear Focus, Visual Calm",
-      mood: "Dreamy, Playful, Imaginative, Joyful, Light",
-      style: "style vector detail : Whimsical (Curved Forms, Flowing Lines, Dreamlike Movement, Imaginative Details, Playful Rhythm)"
-    },
-    {
-      color: "non-gradient color, Flat Tone, Clear Contrast, Balanced Saturation, Consistent Harmony, Honest Finish",
-      background: "solid single color, Smooth Plane, Simple Layout, Stable Surface, Clean Composition, Visual Clarity",
-      mood: "Sincere, Playful, Innocent, Honest, Expressive",
-      style: "style vector detail : Naive Art (Childlike Simplicity, Flat Perspective, Bold Forms, Unrefined Lines, Honest Expression)"
-    },
-    {
-      color: "non-gradient color, Decorative Harmony, Balanced Contrast, Consistent Tone, Clear Finish, Symbolic Palette",
-      background: "solid single color, Simple Layout, Clear Focus, Soft Surface, Minimal Detail, Stable Base",
-      mood: "Cultural, Warm, Expressive, Traditional, Artistic",
-      style: "style vector detail : Folk Art (Handcrafted Look, Decorative Patterns, Symbolic Motifs, Simple Forms, Cultural Warmth)"
-    },
-    {
-      color: "non-gradient color, Soft Contrast, Gentle Harmony, Consistent Tone, Unified Finish, Balanced Palette",
-      background: "solid single color, Clean Surface, Simple Layout, Clear Focus, Smooth Plane, Minimal Distraction",
-      mood: "Warm, Friendly, Narrative, Joyful, Gentle",
-      style: "style vector detail : Children's Book (Soft Lines, Gentle Proportions, Expressive Gestures, Storytelling Focus, Warm Feel)"
-    },
-    {
-      color: "non-gradient color, Balanced Contrast, Consistent Tone, Faceted Harmony, Smooth Finish, Modern Clarity",
-      background: "solid single color, Simple Field, Clear Focus, Stable Surface, Minimal Detail, Clean Geometry",
-      mood: "Modern, Structured, Cool, Analytical, Sleek",
-      style: "style vector detail : Low Poly (Angular Surfaces, Faceted Shapes, Sharp Geometry, Simplified Detail, Digital Aesthetic)"
-    },
-    {
-      color: "non-gradient color, Bold Contrast, Balanced Tone, Clear Separation, Unified Harmony, Strong Finish",
-      background: "solid single color, Simple Grid, Clean Surface, Stable Layout, Clear Space, Minimal Noise",
-      mood: "Energetic, Playful, Dynamic, Creative, Bold",
-      style: "style vector detail : Memphis Style (Geometric Shapes, Bold Patterns, Irregular Grids, Playful Layouts, 80s Energy)"
-    },
-    {
-      color: "non-gradient color, Low Contrast, Balanced Tone, Unified Palette, Clear Finish, Visual Calm",
-      background: "solid single color, Smooth Surface, Simple Layout, Clear Focus, Minimal Detail, Stable Space",
-      mood: "Calm, Elegant, Clean, Focused, Modern",
-      style: "style vector detail : Minimalist (Clean Composition, Simple Geometry, Balanced Space, Few Elements, Refined Clarity)"
-    },
-    {
-      color: "non-gradient color, Bold Contrast, Vivid Intensity, Unified Palette, Clean Finish, Graphic Clarity",
-      background: "solid single color, Smooth Surface, Clear Focus, Minimal Texture, Balanced Space, Simple Layout",
-      mood: "Energetic, Bold, Playful, Confident, Expressive",
-      style: "style vector detail : Pop Art (Bold Outlines, High Contrast, Comic Halftones, Simplified Forms, Retro Graphic Aesthetic)"
-    },
-    {
-      color: "non-gradient color, Flat Tone, Clear Contrast, Consistent Brightness, Balanced Harmony, Clean Finish",
-      background: "solid single color, Neutral Plane, Simple Layout, Clear Structure, Smooth Surface, Minimal Noise",
-      mood: "Modern, Practical, Direct, Clean, Functional",
-      style: "style vector detail : Flat Graphic (Simplified Shapes, No Depth, Solid Forms, Clean Edges, Modern Design Look)"
-    },
-    {
-      color: "non-gradient color, Balanced Tone, Clear Separation, Visual Harmony, Consistent SatURATION, Clean Finish",
-      background: "solid single color, Smooth Plane, Simple Focus, Minimal Texture, Clear Layout, Stable Composition",
-      mood: "Elegant, Calm, Artistic, Precise, Contemporary",
-      style: "style vector detail : Line Art (Continuous Lines, Minimal Detail, Simplified Forms, Expressive Curves, Elegant Flow)"
-    },
-    {
-      color: "non-gradient color, Flat Tone, Balanced Contrast, Unified Finish, Clear Separation, Visual Clarity",
-      background: "solid single color, Minimal Layout, Clear Composition, Smooth Plane, Neutral Focus, Stable Base",
-      mood: "Modern, Clean, Graphic, Structured, Professional",
-      style: "style vector detail : Outline Art (Defined Contours, Clean Edges, Simplified Silhouettes, Uniform Weight, Graphic Precision)"
-    },
-    {
-      color: "non-gradient color, Balanced Tone, Clear Harmony, Visual Brightness, Unified Palette",
-      background: "solid single color, Clean Surface, Clear Composition, Minimal Depth, Smooth Plane, Balanced Focus",
-      mood: "Playful, Trendy, Modern, Youthful, Fun",
-      style: "style vector detail : Sticker Art (Thick Outlines, Simplified Icons, Smooth Shapes, Graphic Pop, Playful Design)"
-    },
-    {
-      color: "non-gradient color, Balanced Tone, Clear Contrast, Consistent Geometry, Clean Finish, Unified Harmony",
-      background: "solid single color, Smooth Plane, Structured Grid, Minimal Detail, Clear Focus, Stable Composition",
-      mood: "Modern, Ordered, Structured, Precise, Intelligent",
-      style: "style vector detail : Geometric (Sharp Angles, Symmetrical Shapes, Repetitive Patterns, Clear Edges, Structured Layout)"
-    },
-    {
-      color: "non-gradient color, Balanced Contrast, Dynamic Tone, Unified Palette, Clean Finish, Expressive Flow",
-      background: "solid single color, Smooth Plane, Minimal Depth, Clear Focus, Stable Layout, Subtle Composition",
-      mood: "Creative, Expressive, Modern, Conceptual, Artistic",
-      style: "style vector detail : Abstract (Free Forms, Dynamic Composition, Simplified Shapes, Expressive Lines, Conceptual Aesthetic)"
-    },
-    {
-      color: "non-gradient color, Strong Contrast, Functional Palette, Clear Tone, Balanced Harmony, Visual Strength",
-      background: "solid single color, Structured Grid, Minimal Noise, Clean Surface, Clear Focus, Stable Base",
-      mood: "Industrial, Progressive, Constructive, Modern, Bold",
-      style: "style vector detail : Constructivism (Geometric Structures, Angular Shapes, Dynamic Layouts, Bold Composition, Functional Design)"
-    },
-    {
-      color: "non-gradient color, Bold Contrast, Minimal Palette, Flat Tone, Consistent Geometry, Clear Balance",
-      background: "solid single color, Clean Plane, Stable Focus, Clear Layout, Minimal Texture, Neutral Surface",
-      mood: "Rational, Modern, Conceptual, Minimal, Analytical",
-      style: "style vector detail : Suprematism (Abstract Forms, Geometric Blocks, Pure Composition, Balanced Space, Non-Representational Layout)"
-    },
-    {
-      color: "non-gradient color, Primary Harmony, Balanced Contrast, Functional Palette, Clear Separation, Unified Finish",
-      background: "solid single color, Structured Layout, Clear Focus, Clean Surface, Smooth Plane, Stable Visual Balance",
-      mood: "Modern, Rational, Balanced, Clean, Professional",
-      style: "style vector detail : Bauhaus (Geometric Shapes, Functional Layouts, Clean Lines, Balanced Space, Constructive Aesthetic)"
-    },
-    {
-      color: "non-gradient color, Clean Contrast, Minimal Palette, Balanced Tone, Subtle Harmony, Clear Finish",
-      background: "solid single color, Smooth Plane, Neutral Focus, Simple Layout, Minimal Distraction, Stable Composition",
-      mood: "Structured, Functional, Clean, Organized, Neutral",
-      style: "style vector detail : Swiss Style (Grid Systems, Clear Typography, Balanced Space, Clean Alignment, Modernist Precision)"
-    },
-    {
-      color: "non-gradient color, Functional Palette, Clear Contrast, Balanced Tone, Unified Finish, Visual Harmony",
-      background: "solid single color, Structured Layout, Clean Surface, Minimal Detail, Clear Focus, Stable Composition",
-      mood: "Rational, Modern, Objective, Professional, Functional",
-      style: "style vector detail : Modernist (Grid Alignment, Simple Forms, Clean Typography, Structured Layout, Functional Aesthetic)"
-    },
-    {
-      color: "non-gradient color, Balanced Contrast, Clear Tone, Consistent Harmony, Unified Finish, Visual Balance",
-      background: "solid single color, Clean Plane, Neutral Surface, Clear Structure, Minimal Noise, Stable Focus",
-      mood: "Clean, Typographic, Structured, Modern, Refined",
-      style: "style vector detail : Typographic (Bold Letterforms, GridAlignment, Minimal Decoration, Clear Hierarchy, Modern Balance)"
-    },
-    {
-      color: "non-gradient color, Balanced Tone, Clear Harmony, Subtle Contrast, Unified Finish, Visual Purity",
-      background: "solid single color, Smooth Surface, Stable Composition, Clear Focus, Minimal Noise, Simple Layout",
-      mood: "Calm, Focused, Elegant, Modern, Sophisticated",
-      style: "style vector detail : Monochromatic (Single Hue Range, Tonal Balance, Depth through Value, Unified Mood, Minimal Aesthetic)"
-    },
-    {
-      color: "non-gradient color, Strong Contrast, Unified Tone, Clear Balance, Clean Separation, Consistent Depth",
-      background: "solid single color, Smooth Field, Clear Focus, Simple Layout, Stable Space, Minimal Texture",
-      mood: "Clever, Modern, Elegant, Conceptual, Balanced",
-      style: "style vector detail : Negative Space (Visual Balance, Clever Silhouettes, Simplified Composition, Dual Perception, Minimal Structure)"
-    },
-    {
-      color: "non-gradient color, Balanced Contrast, Consistent Tone, Clear Definition, Unified Finish, Smooth Harmony",
-      background: "solid single color, Structured Layout, Clear Focus, Minimal Texture, Neutral Plane, Stable Composition",
-      mood: "Technical, Clean, Modern, Structured, Innovative",
-      style: "style vector detail : Isometric (3D Perspective, Parallel Lines, Structured Depth, Clean Geometry, Precise Layout)"
-    },
-    {
-      color: "non-gradient color, Balanced Contrast, Artistic Tone, Unified Palette, Clear Finish, Consistent Harmony",
-      background: "solid single color, Clean Surface, Clear Focus, Smooth Plane, Minimal Detail, Stable Layout",
-      mood: "Creative, Expressive, Artistic, Engaging, Warm",
-      style: "style vector detail : Illustrative (Detailed Drawing, Expressive Lines, Stylized Forms, Clear Composition, Narrative Touch)"
-    },
-    {
-      color: "non-gradient color, Balanced Tone, Soft Contrast, Unified Finish, Consistent Harmony, Visual Fluidity",
-      background: "solid single color, Smooth Surface, Minimal Texture, Clear Focus, Stable Layout, Simple Depth",
-      mood: "Organic, Natural, Flowing, Soft, Calm",
-      style: "style vector detail : Organic Shapes (Curved Lines, Natural Forms, Smooth Flow, Asymmetrical Balance, Soft Geometry)"
-    },
-    {
-      color: "non-gradient color, Subtle Contrast, Balanced Tone, Consistent Finish, Unified Harmony, Ethereal Clarity",
-      background: "solid single color, Smooth Field, Clean Layout, Minimal Detail, Clear Focus, Light Structure",
-      mood: "Mystical, Calm, Dreamy, Reflective, Balanced",
-      style: "style vector detail : Celestial (Circular Motifs, Flowing Lines, Spatial Balance, Symbolic Shapes, Mystical Geometry)"
-    },
-    {
-      color: "non-gradient color, Clear Contrast, Structured Tone, Unified Harmony, Consistent Finish, Visual Stability",
-      background: "solid single color, Clean Surface, Defined Layout, Minimal Texture, Clear Focus, Stable Plane",
-      mood: "Professional, Technical, Structured, Rational, Detailed",
-      style: "style vector detail : Architectural (Precise Lines, Structural Geometry, Grid Balance, Scaled Proportions, Technical Clarity)"
-    },
-    {
-      color: "non-gradient color, Harmonized Tone, Clear Balance, Subtle Contrast, Unified Finish, Visual Flow",
-      background: "solid single color, Repetitive Layout, Clean Surface, Minimal Noise, Stable Composition, Balanced Rhythm",
-      mood: "Calm, Decorative, Balanced, Elegant, Repetitive",
-      style: "style vector detail : Pattern-based (Repetitive Motifs, Structured Grids, Consistent Rhythm, Clear Symmetry, Visual Harmony)"
-    },
-    {
-      color: "non-gradient color, Gentle Contrast, Balanced Tone, Subtle Depth, Unified Finish, Consistent Harmony",
-      background: "solid single color, Soft Texture, Smooth Plane, Minimal Noise, Clear Focus, Stable Composition",
-      mood: "Soft, Calm, Subtle, Natural, Gentle",
-      style: "style vector detail : Subtle Texture (Fine Grain, Smooth Gradation, Gentle Patterns, Soft Surface, Minimal Aesthetic)"
-    },
-    {
-      color: "non-gradient color, Balanced Contrast, Clear Harmony, Unified Finish, Consistent Tone, Visual Strength",
-      background: "solid single color, Stable Plane, Clear Focus, Clean Surface, Minimal Detail, Structured Layout",
-      mood: "Symbolic, Bold, Classic, Confident, Timeless",
-      style: "style vector detail : Emblematic (Symmetrical Shapes, Centered Layout, Bold Outline, Simplified Motifs, Iconic Composition)"
-    },
-    {
-      color: "non-gradient color, Clear Contrast, Unified Tone, Balanced Harmony, Simple Finish, Visual Definition",
-      background: "solid single color, Smooth Plane, Clear Focus, Minimal Distraction, Stable Layout, Clean Surface",
-      mood: "Elegant, Bold, Defined, Calm, Modern",
-      style: "style vector detail : Silhouette (Solid Shapes, Defined Outlines, Simplified Forms, Negative Space, Visual Focus)"
-    },
-    {
-      color: "non-gradient color, Consistent Tone, Balanced Contrast, Unified Finish, Clean Harmony, Smooth Flow",
-      background: "solid single color, Clear Surface, Minimal Detail, Stable Layout, Balanced Focus, Simple Plane",
-      mood: "Graceful, Artistic, Fluid, Elegant, Peaceful",
-      style: "style vector detail : Calligraphic (Flowing Lines, Expressive Curves, Rhythmic Forms, Handcrafted Motion, Elegant Composition)"
-    },
-    {
-      color: "non-gradient color, Balanced Tone, Subtle Contrast, Unified Finish, Visual Calm, Consistent Harmony",
-      background: "solid single color, Smooth Surface, Minimal Texture, Clear Focus, Balanced Layout, Simple Depth",
-      mood: "Tranquil, Calm, Meditative, Minimal, Harmonious",
-      style: "style vector detail : Zen-inspired (Balanced Forms, Empty Space, Gentle Lines, Natural Flow, Peaceful Composition)"
-    },
-    {
-      color: "non-gradient color, Soft Contrast, Neutral Harmony, Balanced Tone, Unified Finish, Clean Simplicity",
-      background: "solid single color, Smooth Surface, Minimal Distraction, Clear Focus, Stable Layout, Light Texture",
-      mood: "Calm, Cozy, Minimal, Functional, Inviting",
-      style: "style vector detail : Nordic Design (Clean Geometry, Natural Balance, Simple Lines, Functional Layout, Warm Minimalism)"
-    },
-    {
-      color: "non-gradient color, Subtle Contrast, Harmonious Tone, Balanced Saturation, Unified Finish, Natural Calm",
-      background: "solid single color, Smooth Plane, Clear Composition, Minimal Texture, Stable Focus, Visual Serenity",
-      mood: "Serene, Balanced, Elegant, Minimal, Peaceful",
-      style: "style vector detail : Japanese Aesthetic (Asymmetrical Balance, Natural Flow, Refined Simplicity, Subtle Lines, Timeless Harmony)"
-    }
-];
-// --- END: Hardcoded Template Values ---
-
 const handleApiError = (error: unknown): never => {
     console.error("Gemini API Error:", error);
     if (error instanceof Error) {
@@ -443,25 +198,46 @@ export const generateJsonPrompt = async (title: string, apiKey: string): Promise
     if (!apiKey) throw new Error("API key is not set.");
     const ai = new GoogleGenAI({ apiKey });
 
-    const prompt = `You are a creative AI art director. Your task is to expand a simple, SEO-friendly microstock title into a rich, descriptive "concept" for an AI image generator.
+    const prompt = `You are a creative AI art director. Your task is to expand a microstock title into a complete, descriptive JSON prompt for an AI image generator. You must choose the BEST possible style that fits the theme.
 
 **Microstock Title:** "${title}"
 
 **Your Process:**
-1.  **Identify Core Elements:** From the second part of the title, identify the main subject and the simple, single-noun supporting elements (e.g., subject: 'bird', elements: 'leaf', 'branch').
-2.  **Elaborate Creatively:** Create a single, descriptive sentence for the "concept". In this sentence, you MUST add descriptive adjectives and richer context to the simple nouns. Transform the basic elements into a vivid scene.
-    *   **CRITICAL:** This is where you add the creativity that was forbidden in the title.
-    *   You can use phrases like "featuring," "with a combination of," etc.
-    *   Example Transformation:
-        *   Title Elements: 'bird, leaf, branch'
-        *   **Excellent "concept":** "A cute flying bird featuring a combination of autumn leaves and a cozy tree branch."
-        *   Title Elements: 'Christmas tree, gingerbread, candy cane'
-        *   **Excellent "concept":** "A delightful Christmas tree scene, with festive gingerbread cookies and sweet candy canes."
-3.  **Constraints:**
-    *   The "concept" MUST NOT contain the words "seamless," "pattern," or "illustration."
-    *   The entire output must be a single, valid JSON object containing only the "concept" field.
+1.  **Analyze Theme:** Deeply analyze the title to understand its core theme, subject matter, and mood (e.g., 'Christmas', 'vintage', 'cute animal').
+2.  **Select the Perfect Style:** Choose the most commercially appealing and artistically appropriate vector style for this theme. Your choice should be from a wide range of styles like Flat Graphic, Kawaii, Art Deco, Memphis Style, etc.
+3.  **Generate a VIBRANT Palette:** Create a matching color palette. It MUST be vibrant and eye-catching.
+4.  **Construct the JSON:** Generate a single, valid JSON object with five fields: "concept", "color", "background", "mood", and "style".
 
-Generate the JSON "concept" now based on the title.`;
+**!! CRITICAL JSON FIELD CONSTRAINTS !!**
+
+*   **concept:**
+    *   A single descriptive sentence elaborating on the title's visual elements.
+    *   Add rich adjectives to the simple nouns from the title.
+    *   **DO NOT** include the words "seamless," "pattern," or "illustration."
+    *   *Example:* "A delightful Christmas tree scene, with festive gingerbread cookies and sweet candy canes."
+
+*   **color:**
+    *   A descriptive phrase for a non-gradient color palette.
+    *   **MUST** start with the exact phrase "non-gradient color".
+    *   The palette should be vibrant and well-suited to the chosen style and theme.
+    *   **DO NOT** mention specific color names (e.g., "red", "blue").
+    *   *Example:* "non-gradient color, Festive Holiday Hues, Cheerful Contrast, Warm & Cozy Tones, Bright Finish"
+
+*   **background:**
+    *   A descriptive phrase for a clean, single-color background.
+    *   **MUST** include the exact phrase "solid single color".
+    *   *Example:* "solid single color, Smooth Surface, Minimal Distraction, Clear Focus"
+
+*   **mood:**
+    *   A list of 4-5 adjectives reflecting the overall mood.
+    *   *Example:* "Festive, Joyful, Cozy, Whimsical, Cheerful"
+
+*   **style:**
+    *   The format **MUST** be: 'style vector detail : [Style Name] ([Characteristic 1], [Characteristic 2], [Characteristic 3], [Characteristic 4])'.
+    *   *Example:* "style vector detail : Children's Book (Soft Lines, Gentle Proportions, Expressive Gestures, Storytelling Focus)"
+
+**Your Mission:**
+Generate the complete JSON object for the title "${title}", ensuring every field strictly adheres to its constraints. The final output must be only the JSON object.`;
 
     try {
         const response = await ai.models.generateContent({
@@ -473,23 +249,21 @@ Generate the JSON "concept" now based on the title.`;
                     type: Type.OBJECT,
                     properties: {
                       concept: { type: Type.STRING },
+                      color: { type: Type.STRING },
+                      background: { type: Type.STRING },
+                      mood: { type: Type.STRING },
+                      style: { type: Type.STRING },
                     },
-                    required: ["concept"],
+                    required: ["concept", "color", "background", "mood", "style"],
                 }
             }
         });
 
         const parsedJson = JSON.parse(response.text);
-        
-        const randomTemplate = PROMPT_TEMPLATES[Math.floor(Math.random() * PROMPT_TEMPLATES.length)];
 
         return {
-            concept: parsedJson.concept,
+            ...parsedJson,
             composition: FIXED_COMPOSITION,
-            color: randomTemplate.color,
-            background: randomTemplate.background,
-            mood: randomTemplate.mood,
-            style: randomTemplate.style,
             settings: FIXED_SETTINGS,
         };
     } catch (error) {
