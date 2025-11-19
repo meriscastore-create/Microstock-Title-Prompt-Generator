@@ -33,7 +33,9 @@ export const generateBroadTopics = async (apiKey: string): Promise<TopicCategory
     **Current Date:** ${currentDate}
     
     **Objective:** 
-    Generate a structured list of broad **TOPICS** (single words or short phrases) that are currently trending or essential for microstock portfolios. Do NOT generate long-tail keywords yet, just the main subjects.
+    Generate a structured list of broad **TOPICS** (single words or short phrases) that are currently trending or essential for microstock portfolios. 
+    **CRITICAL:** These topics must be strictly suitable for **FLAT 2D VECTOR ILLUSTRATIONS**. 
+    **FORBIDDEN:** Do NOT include topics that imply 3D rendering, photography, or CGI (e.g., "3D Shapes", "Bokeh Photography", "Realistic Skin").
 
     **Required Categories & Counts:**
     1. **Upcoming Seasonal:** 8-10 topics for events happening in the next 3-6 months (e.g., Christmas, New Year, Valentine, Spring).
@@ -88,8 +90,12 @@ export const generateSpecificTrends = async (topic: string, categoryContext: str
     1.  **Format:** The output must be specific phrases suitable for a title or prompt (e.g., "Cute Pastel Birthday Cake", "Retro Groovy Flower Pattern").
     2.  **Specificity:** Avoid generic single words. Combine the main topic with styles, colors, or specific elements.
     3.  **Commercial Viability:** Focus on what sells on Shutterstock and Adobe Stock for **Seamless Patterns**.
-    4.  **Variety:** Provide a mix of styles (cute, elegant, minimal, vintage) relevant to the topic.
-    5.  **Output:** A list of keywords with a predicted "Trend Score" (0-100).
+    4.  **Style Constraints (CRITICAL - STRICT ENFORCEMENT):** 
+        *   **ABSOLUTELY FORBIDDEN:** You MUST NOT use words like **'3D', 'Photorealistic', 'Render', 'CGI', 'Photo', 'Realistic', 'Photography', 'Macro', 'Blur', 'Bokeh', 'Plastic', 'Glossy'**.
+        *   **FOCUS:** Keywords must imply styles suitable for **FLAT VECTOR DESIGN** (e.g., 'Flat', 'Hand Drawn', 'Doodle', 'Geometric', 'Minimal', 'Cartoon', 'Line Art', 'Retro', 'Abstract').
+        *   If a style naturally implies 3D (like "origami"), ensure the phrasing specifies "vector illustration" or "flat style".
+    5.  **Variety:** Provide a mix of styles (cute, elegant, minimal, vintage) relevant to the topic.
+    6.  **Output:** A list of keywords with a predicted "Trend Score" (0-100).
 
     **Example Output:**
     - Festive Christmas Animal :: 95
@@ -107,7 +113,8 @@ export const generateSpecificTrends = async (topic: string, categoryContext: str
         const keywords: KeywordSuggestion[] = [];
 
         text.split('\n').forEach(line => {
-            const cleanLine = line.replace(/^-/, '').trim();
+            // Enhanced regex to strip "1.", "1)", "- ", "* " but keep words starting with numbers like "3d" (though 3d is forbidden by prompt, we handle cleaning just in case)
+            const cleanLine = line.replace(/^(\d+[\.\)]\s*|[\-\*]\s*)/, '').trim();
             const parts = cleanLine.split('::');
             if (parts.length === 2) {
                 const name = parts[0].trim();
@@ -118,10 +125,10 @@ export const generateSpecificTrends = async (topic: string, categoryContext: str
             }
         });
         
-        // Fallback if parsing fails
+        // Fallback if parsing fails (e.g. AI didn't use :: separator)
         if (keywords.length === 0) {
              text.split('\n').forEach(line => {
-                const clean = line.replace(/^\d+\.|^-/, '').trim();
+                const clean = line.replace(/^(\d+[\.\)]\s*|[\-\*]\s*)/, '').trim();
                 if(clean.length > 3) keywords.push({ name: clean, score: 80 });
              });
         }
@@ -141,19 +148,19 @@ export const generateUniqueKeywords = async (baseKeywords: string, apiKey: strin
     **Theme:** "${baseKeywords}"
 
     **Your Task:**
-    Generate EXACTLY ONE common, popular, and commercially relevant keyword to combine with the theme. This new keyword should be a popular search term itself but create a unique, marketable, and eye-catching vector illustration concept when combined.
+    Generate EXACTLY ONE common, popular, and commercially relevant keyword to combine with the theme. This new keyword should be a popular search term itself but create a unique, marketable, and eye-catching **VECTOR ILLUSTRATION** concept when combined.
     
     **!! CRITICAL CONSTRAINTS !!**
-    1.  **Avoid Absurdity:** The keyword should be common and easily recognizable (e.g., 'cats', 'botanical', 'technology', 'food'). Do not use overly obscure, abstract, or nonsensical words. The goal is a creative combination of popular topics.
-    2.  **Format:** Return ONLY the single new keyword (e.g., "botanical").
-    3.  **Brevity:** The keyword must be a single word.
-    4.  **Exclusivity:** DO NOT include the original keywords in your response.
-    5.  **Clean Output:** DO NOT add any explanation, introductory text, or markdown formatting.
+    1.  **Avoid Absurdity:** The keyword should be common and easily recognizable (e.g., 'cats', 'botanical', 'technology', 'food').
+    2.  **Vector Friendly:** The keyword MUST result in a concept suitable for flat 2D vector art. **DO NOT** generate words like '3d', 'realistic', 'photo', 'render', 'cgi'.
+    3.  **Format:** Return ONLY the single new keyword (e.g., "botanical").
+    4.  **Brevity:** The keyword must be a single word.
+    5.  **Exclusivity:** DO NOT include the original keywords in your response.
+    6.  **Clean Output:** DO NOT add any explanation, introductory text, or markdown formatting.
 
-    **Examples of Excellent Responses (Creative but not Absurd):**
+    **Examples:**
     - Theme: "Vintage Floral Pattern" -> Response: "insects"
     - Theme: "Cyber Monday Banners" -> Response: "origami"
-    - Theme: "Minimalist Christmas Background" -> Response: "geometric"
 
     Generate the single keyword for the theme "${baseKeywords}" now.`;
     
@@ -173,7 +180,7 @@ export const generateTitle = async (keyword: string, apiKey: string): Promise<st
   if (!apiKey) throw new Error("API key is not set.");
   const ai = new GoogleGenAI({ apiKey });
   
-  const prompt = `You are a world-class microstock SEO and title generation expert. Your task is to generate a descriptive, high-quality title for a vector illustration based on user keywords.
+  const prompt = `You are a world-class microstock SEO and title generation expert. Your task is to generate a descriptive, high-quality title for a **VECTOR ILLUSTRATION** based on user keywords.
 
 **The Structure:**
 The title must consist of **three distinct parts, separated by a period (.)**. You must use words and phrases that are popular and common in the microstock industry.
@@ -181,12 +188,13 @@ The title must consist of **three distinct parts, separated by a period (.)**. Y
 **!! CRITICAL CONSTRAINTS !!**
 1. The entire generated title **MUST NOT EXCEED 170 characters** in total. Be concise.
 2. The final output must be a clean string, with **NO MARKDOWN FORMATTING** like asterisks (*) or backticks (\`).
+3. **VECTOR ONLY:** Avoid any terminology implying photography or 3D rendering (e.g., no 'photorealistic', '3d', 'render', 'shot').
 
 **User Keywords:** '${keyword}'
 
 **Your Process:**
 
-1.  **Analyze All Keywords:** Identify the main subject, theme, atmosphere, and any supporting elements from the user's keywords. Your goal is to intelligently incorporate **all concepts** from the user's input across the three parts of the title.
+1.  **Analyze All Keywords:** Identify the main subject, theme, atmosphere, and any supporting elements from the user's keywords.
 2.  **Construct the 3-Part Title:**
 
     *   **Part 1: Thematic Introduction.**
