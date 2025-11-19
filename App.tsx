@@ -78,7 +78,9 @@ const STYLE_PREFERENCES = [
     'Creative', 'Minimalist', 'Elegant', 'Trendy', 'Organic', 'Hand-Drawn', 
     'Geometric', 'Cute', 'Pastel', 'Vintage', 'Whimsical', 'Boho', 
     'Cottagecore', 'Flat', 'Abstract', 'Art Deco', 'Memphis', 'Line Art',
-    'Ukiyo-e', 'Psychedelic', 'Gothic', 'Steampunk', 'Luxury', 'Modern', 'Kawaii'
+    'Ukiyo-e', 'Psychedelic', 'Gothic', 'Steampunk', 'Luxury', 'Modern', 'Kawaii',
+    'Groovy', 'Pure Line', 'Funky', 'Bubble Groovy', 'Fluid Line', 
+    'Thin Outline', 'Outline', 'Doodle', 'Iconic'
 ];
 
 
