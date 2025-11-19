@@ -1,3 +1,4 @@
+
 export interface JsonPrompt {
   concept: string;
   composition: string;
@@ -6,4 +7,14 @@ export interface JsonPrompt {
   mood: string;
   style: string;
   settings: string;
+}
+
+export interface KeywordSuggestion {
+  name: string;
+  score: number;
+}
+
+export interface TopicCategory {
+  category: string;
+  topics: string[];
 }

@@ -1,5 +1,6 @@
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { JsonPrompt } from './types';
+import { JsonPrompt, TopicCategory, KeywordSuggestion } from './types';
 import * as geminiService from './services/geminiService';
 
 // --- ICONS ---
@@ -58,6 +59,12 @@ const SlidersIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }
     </svg>
 );
 
+const ChevronLeftIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+    </svg>
+);
+
 
 // --- TYPES ---
 interface Toast {
@@ -65,17 +72,6 @@ interface Toast {
   message: string;
   type: 'success' | 'error';
 }
-
-interface KeywordSuggestion {
-  name: string;
-  score: number;
-}
-
-interface CategorizedKeywords {
-    category: string;
-    keywords: KeywordSuggestion[];
-}
-
 
 // --- CONSTANTS ---
 const STYLE_PREFERENCES = [
@@ -238,12 +234,16 @@ const App: React.FC = () => {
     const [jsonString, setJsonString] = useState('');
     const [apiKey, setApiKey] = useState<string>('');
     const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
-    const [categorizedKeywords, setCategorizedKeywords] = useState<CategorizedKeywords[]>([]);
-    const [isSuggesting, setIsSuggesting] = useState<boolean>(false);
     
-    const [isProcessingSuggestion, setIsProcessingSuggestion] = useState<boolean>(false);
-    
+    // Suggestion System State
+    const [topicCategories, setTopicCategories] = useState<TopicCategory[]>([]);
+    const [activeTopicCategory, setActiveTopicCategory] = useState<string | null>(null);
+    const [activeTopic, setActiveTopic] = useState<string | null>(null);
+    const [specificKeywords, setSpecificKeywords] = useState<KeywordSuggestion[]>([]);
+    const [isSuggestingTopics, setIsSuggestingTopics] = useState<boolean>(false);
+    const [isSuggestingSpecifics, setIsSuggestingSpecifics] = useState<boolean>(false);
     const [showSuggestionArea, setShowSuggestionArea] = useState<boolean>(false);
+
     const [isCombining, setIsCombining] = useState<boolean>(false);
     const [styleHistory, setStyleHistory] = useState<string[]>([]);
     const [selectedStylePreferences, setSelectedStylePreferences] = useState<string[]>([]);
@@ -327,37 +327,51 @@ const App: React.FC = () => {
         setShowIframe(false);
         setIframeUrl('');
         setShowSuggestionArea(false);
+        // Reset Suggestion State
+        setActiveTopic(null);
+        setSpecificKeywords([]);
         setStyleHistory([]);
         setSelectedStylePreferences([]);
     };
 
-    const handleSuggestKeywords = async () => {
+    const handleLoadTopics = async () => {
         setShowSuggestionArea(true);
-        setIsSuggesting(true);
-        setCategorizedKeywords([]);
-        const keywordsArray = await handleApiCall(() => geminiService.generateTrendKeywords(apiKey));
-        if (keywordsArray) {
-            setCategorizedKeywords(keywordsArray);
+        setActiveTopic(null); // Reset deep dive view if re-opening
+        setSpecificKeywords([]);
+
+        if (topicCategories.length === 0) {
+            setIsSuggestingTopics(true);
+            const categories = await handleApiCall(() => geminiService.generateBroadTopics(apiKey));
+            if (categories) {
+                setTopicCategories(categories);
+            }
+            setIsSuggestingTopics(false);
         }
-        setIsSuggesting(false);
     };
 
-    const handleSelectSuggestedKeyword = async (keyword: string) => {
-        setIsProcessingSuggestion(true);
-        setCategorizedKeywords([]);
-        setShowSuggestionArea(false);
-        setBaseKeywords(keyword);
-    
-        const uniqueKeyword = await handleApiCall(() => geminiService.generateUniqueKeywords(keyword, apiKey));
-    
-        if (uniqueKeyword && uniqueKeyword.trim()) {
-            const trendKeywords = keyword.split(' ').map(k => k.trim().replace(/,$/, '')).filter(Boolean);
-            const allKeywords = [...trendKeywords, uniqueKeyword.trim()];
-            const shuffledKeywords = shuffleArray(allKeywords);
-            setUserInput(shuffledKeywords.join(', '));
-            addToast('Concept created and randomized!', 'success');
+    const handleTopicClick = async (topic: string, category: string) => {
+        setActiveTopic(topic);
+        setActiveTopicCategory(category);
+        setSpecificKeywords([]);
+        setIsSuggestingSpecifics(true);
+
+        const keywords = await handleApiCall(() => geminiService.generateSpecificTrends(topic, category, apiKey));
+        if (keywords) {
+            setSpecificKeywords(keywords);
         }
-        setIsProcessingSuggestion(false);
+        setIsSuggestingSpecifics(false);
+    };
+
+    const handleBackToTopics = () => {
+        setActiveTopic(null);
+        setActiveTopicCategory(null);
+        setSpecificKeywords([]);
+    };
+
+    const handleSelectFinalKeyword = (keyword: string) => {
+        setUserInput(keyword);
+        setBaseKeywords(keyword);
+        setShowSuggestionArea(false);
     };
 
     const handleCombineKeyword = async () => {
@@ -506,18 +520,18 @@ const App: React.FC = () => {
                                 value={userInput}
                                 onChange={(e) => {
                                     setUserInput(e.target.value);
-                                    if(baseKeywords) setBaseKeywords(''); // Reset base if user types manually
+                                    if(baseKeywords) setBaseKeywords(''); 
                                 }}
                                 onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
                                 placeholder={
-                                    isProcessingSuggestion || isCombining 
+                                    isCombining 
                                     ? "Creating a new concept..." 
                                     : "e.g., Christmas Tree, Vintage Flowers"
                                 }
-                                disabled={isProcessingSuggestion || isCombining}
+                                disabled={isCombining}
                                 className="w-full bg-gray-800 border border-dark-border rounded-md px-4 py-3 text-light-text placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-primary transition duration-200 pr-10 disabled:opacity-70"
                             />
-                            {(isProcessingSuggestion || isCombining) ? (
+                            {(isCombining) ? (
                                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                     <Spinner className="w-5 h-5 text-brand-primary" />
                                 </div>
@@ -544,18 +558,18 @@ const App: React.FC = () => {
                                 </button>
                              ) : (
                                 <button
-                                    onClick={handleSuggestKeywords}
-                                    disabled={isLoading || isSuggesting}
+                                    onClick={handleLoadTopics}
+                                    disabled={isLoading || isSuggestingTopics}
                                     className="flex-grow flex items-center justify-center bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
                                     title="Suggest Trending Keywords"
                                 >
-                                    {isSuggesting ? <Spinner /> : <LightbulbIcon />}
+                                    {isSuggestingTopics ? <Spinner /> : <LightbulbIcon />}
                                     <span className="hidden sm:inline sm:ml-2">Suggest</span>
                                 </button>
                              )}
                             <button
                                 onClick={handleGenerate}
-                                disabled={isLoading || isSuggesting || isCombining || !userInput.trim()}
+                                disabled={isLoading || isSuggestingTopics || isCombining || !userInput.trim()}
                                 className="flex-grow flex items-center justify-center bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-3 px-6 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
                             >
                                 {isLoading ? (
@@ -570,30 +584,70 @@ const App: React.FC = () => {
                         </div>
                     </div>
                     
-                    <div className={`transition-[max-height,opacity,margin] duration-500 ease-in-out ${showSuggestionArea ? 'max-h-[1000px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'} overflow-auto`}>
-                        {isSuggesting ? (
-                            <div className="flex justify-center items-center py-8">
-                                <Spinner className="h-8 w-8 text-brand-primary" />
+                    {/* SUGGESTION AREA */}
+                    <div className={`transition-[max-height,opacity,margin] duration-500 ease-in-out ${showSuggestionArea ? 'max-h-[1200px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'} overflow-hidden`}>
+                        {isSuggestingTopics ? (
+                            <div className="flex justify-center items-center py-12">
+                                <div className="flex flex-col items-center gap-3">
+                                    <Spinner className="h-10 w-10 text-brand-primary" />
+                                    <p className="text-medium-text">Analyzing market trends...</p>
+                                </div>
                             </div>
-                        ) : categorizedKeywords.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {categorizedKeywords.map(({ category, keywords }) => (
-                                    <div key={category} className="flex flex-col">
-                                        <h3 className="font-bold text-lg mb-3 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">{category}</h3>
-                                        <div className="flex flex-col gap-2">
-                                            {keywords.map((keyword, index) => (
+                        ) : activeTopic ? (
+                            // LEVEL 2: SPECIFIC KEYWORDS VIEW
+                            <div className="animate-fade-in p-2">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <button 
+                                        onClick={handleBackToTopics}
+                                        className="flex items-center gap-2 text-medium-text hover:text-white transition-colors bg-gray-800/50 px-3 py-2 rounded-md"
+                                    >
+                                        <ChevronLeftIcon /> Back
+                                    </button>
+                                    <h3 className="text-xl font-bold text-white">
+                                        Trends for: <span className="text-brand-primary">{activeTopic}</span>
+                                    </h3>
+                                </div>
+
+                                {isSuggestingSpecifics ? (
+                                    <div className="flex justify-center items-center py-12">
+                                         <div className="flex flex-col items-center gap-3">
+                                            <Spinner className="h-10 w-10 text-brand-secondary" />
+                                            <p className="text-medium-text">Finding high-demand long-tail keywords...</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                        {specificKeywords.map((kw, idx) => (
+                                            <button
+                                                key={idx}
+                                                onClick={() => handleSelectFinalKeyword(kw.name)}
+                                                className="text-left p-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-md transition-all flex justify-between items-start group"
+                                            >
+                                                <span className="text-sm text-gray-200 group-hover:text-white pr-2">{kw.name}</span>
+                                                <span className={`text-xs font-mono font-bold ${kw.score > 85 ? 'text-green-400' : 'text-yellow-400'}`}>
+                                                    {kw.score}%
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ) : topicCategories.length > 0 ? (
+                            // LEVEL 1: BROAD TOPICS VIEW
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {topicCategories.map((cat, idx) => (
+                                    <div key={idx} className="flex flex-col h-full bg-gray-800/30 rounded-lg p-4 border border-gray-700/50">
+                                        <h3 className="font-bold text-lg mb-4 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400 min-h-[3.5rem] flex items-center justify-center">
+                                            {cat.category}
+                                        </h3>
+                                        <div className={`flex flex-col gap-2 overflow-y-auto pr-1 custom-scrollbar ${cat.topics.length > 12 ? 'max-h-[400px]' : 'h-auto'}`}>
+                                            {cat.topics.map((topic, tIdx) => (
                                                 <button
-                                                    key={index}
-                                                    onClick={() => handleSelectSuggestedKeyword(keyword.name)}
-                                                    disabled={isProcessingSuggestion}
-                                                    className="group flex items-center justify-between text-left w-full bg-gray-800/50 hover:bg-gray-700/80 p-3 rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-wait"
+                                                    key={tIdx}
+                                                    onClick={() => handleTopicClick(topic, cat.category)}
+                                                    className="text-left px-3 py-2 rounded-md text-sm text-gray-300 hover:text-white hover:bg-brand-primary/20 hover:border-l-2 hover:border-brand-primary transition-all duration-150 bg-gray-900/50"
                                                 >
-                                                    <span className="text-light-text group-hover:text-white transition-colors">{keyword.name}</span>
-                                                    <span className={`font-mono text-sm font-semibold ${
-                                                        keyword.score >= 85 ? 'text-green-300' : keyword.score >= 70 ? 'text-yellow-300' : 'text-purple-300'
-                                                    }`}>
-                                                      {keyword.score}%
-                                                    </span>
+                                                    {topic}
                                                 </button>
                                             ))}
                                         </div>
