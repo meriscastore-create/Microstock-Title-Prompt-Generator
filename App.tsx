@@ -80,7 +80,7 @@ const STYLE_PREFERENCES = [
     'Cottagecore', 'Flat', 'Abstract', 'Art Deco', 'Memphis', 'Line Art',
     'Ukiyo-e', 'Psychedelic', 'Gothic', 'Steampunk', 'Luxury', 'Modern', 'Kawaii',
     'Groovy', 'Pure Line', 'Funky', 'Bubble Groovy', 'Fluid Line', 
-    'Thin Outline', 'Outline', 'Doodle', 'Iconic'
+    'Thin Outline', 'Outline', 'Doodle', 'Iconic', 'Pure Line Icon Non-Fill'
 ];
 
 
