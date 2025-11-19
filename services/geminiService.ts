@@ -26,21 +26,34 @@ export const generateBroadTopics = async (apiKey: string): Promise<TopicCategory
     if (!apiKey) throw new Error("API key is not set.");
     const ai = new GoogleGenAI({ apiKey });
   
-    const currentDate = new Date().toLocaleDateString('en-CA'); 
+    const now = new Date();
+    const currentDate = now.toLocaleDateString('en-CA'); 
+    
+    // Calculate specific upcoming 4 months to force dynamic results
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const upcomingMonths = [];
+    for (let i = 1; i <= 4; i++) {
+        const futureDate = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        upcomingMonths.push(months[futureDate.getMonth()]);
+    }
+    const targetMonthsStr = upcomingMonths.join(', ');
 
     const prompt = `You are an elite Microstock Data Analyst for Shutterstock, Adobe Stock, and Freepik.
     
     **Current Date:** ${currentDate}
+    **Target Market Window:** ${targetMonthsStr}
     
     **Objective:** 
-    Generate a structured list of broad **TOPICS** (single words or short phrases) that are currently trending or essential for microstock portfolios. 
+    Generate a structured list of broad **TOPICS** that are rising in demand right now for the upcoming season.
     **CRITICAL:** These topics must be strictly suitable for **FLAT 2D VECTOR ILLUSTRATIONS**. 
-    **FORBIDDEN:** Do NOT include topics that imply 3D rendering, photography, or CGI (e.g., "3D Shapes", "Bokeh Photography", "Realistic Skin").
 
     **Required Categories & Counts:**
-    1. **Upcoming Seasonal:** 8-10 topics for events happening in the next 3-6 months (e.g., Christmas, New Year, Valentine, Spring).
+    1. **Upcoming Seasonal:** 8-10 topics SPECIFICALLY for events/seasons occurring in **${targetMonthsStr}**. 
+       - **DO NOT** list holidays that have just passed.
+       - **DO NOT** use generic static lists. If it's July, show Halloween/Autumn. If it's October, show Christmas/New Year.
+       - Focus on specific themes for this window.
     2. **Commercial Evergreen:** 20 topics that sell year-round. **MANDATORY:** You MUST include 'Birthday', 'Wedding', 'Baby', 'School', 'Floral', 'Food', 'Travel', 'Abstract' in this list. Fill the rest with other high-selling evergreen topics.
-    3. **Trending Aesthetics:** 10 current visual styles (e.g., Y2K, Boho, Retro, Vaporwave, Bauhaus).
+    3. **Trending Aesthetics:** 10 current visual styles (e.g., Y2K, Boho, Retro, Vaporwave, Bauhaus, 90s Nostalgia).
     4. **Underserved Niches:** 10 topics with high demand but low supply (e.g., specific professions, unique hobbies, niche cultural events).
 
     **Output Format:**

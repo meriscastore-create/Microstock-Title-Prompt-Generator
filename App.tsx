@@ -334,13 +334,15 @@ const App: React.FC = () => {
         setSelectedStylePreferences([]);
     };
 
-    const handleLoadTopics = async () => {
+    const handleLoadTopics = async (forceRefresh: boolean = false) => {
         setShowSuggestionArea(true);
         setActiveTopic(null); // Reset deep dive view if re-opening
         setSpecificKeywords([]);
 
-        if (topicCategories.length === 0) {
+        if (topicCategories.length === 0 || forceRefresh) {
             setIsSuggestingTopics(true);
+            if (forceRefresh) setTopicCategories([]); // Clear for visual feedback
+            
             const categories = await handleApiCall(() => geminiService.generateBroadTopics(apiKey));
             if (categories) {
                 setTopicCategories(categories);
@@ -558,7 +560,7 @@ const App: React.FC = () => {
                                 </button>
                              ) : (
                                 <button
-                                    onClick={handleLoadTopics}
+                                    onClick={() => handleLoadTopics(false)}
                                     disabled={isLoading || isSuggestingTopics}
                                     className="flex-grow flex items-center justify-center bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
                                     title="Suggest Trending Keywords"
@@ -634,25 +636,35 @@ const App: React.FC = () => {
                             </div>
                         ) : topicCategories.length > 0 ? (
                             // LEVEL 1: BROAD TOPICS VIEW
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                {topicCategories.map((cat, idx) => (
-                                    <div key={idx} className="flex flex-col h-full bg-gray-800/30 rounded-lg p-4 border border-gray-700/50">
-                                        <h3 className="font-bold text-lg mb-4 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400 min-h-[3.5rem] flex items-center justify-center">
-                                            {cat.category}
-                                        </h3>
-                                        <div className={`flex flex-col gap-2 overflow-y-auto pr-1 custom-scrollbar ${cat.topics.length > 12 ? 'max-h-[400px]' : 'h-auto'}`}>
-                                            {cat.topics.map((topic, tIdx) => (
-                                                <button
-                                                    key={tIdx}
-                                                    onClick={() => handleTopicClick(topic, cat.category)}
-                                                    className="text-left px-3 py-2 rounded-md text-sm text-gray-300 hover:text-white hover:bg-brand-primary/20 hover:border-l-2 hover:border-brand-primary transition-all duration-150 bg-gray-900/50"
-                                                >
-                                                    {topic}
-                                                </button>
-                                            ))}
+                            <div className="flex flex-col gap-4">
+                                <div className="flex justify-end">
+                                    <button 
+                                        onClick={() => handleLoadTopics(true)} 
+                                        className="flex items-center gap-2 text-xs sm:text-sm text-medium-text hover:text-brand-primary transition-colors bg-gray-800 px-3 py-1.5 rounded-md border border-gray-700"
+                                    >
+                                        <RefreshIcon className="w-4 h-4" /> Refresh Trends
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {topicCategories.map((cat, idx) => (
+                                        <div key={idx} className="flex flex-col h-full bg-gray-800/30 rounded-lg p-4 border border-gray-700/50">
+                                            <h3 className="font-bold text-lg mb-4 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400 min-h-[3.5rem] flex items-center justify-center">
+                                                {cat.category}
+                                            </h3>
+                                            <div className={`flex flex-col gap-2 overflow-y-auto pr-1 custom-scrollbar ${cat.topics.length > 12 ? 'max-h-[400px]' : 'h-auto'}`}>
+                                                {cat.topics.map((topic, tIdx) => (
+                                                    <button
+                                                        key={tIdx}
+                                                        onClick={() => handleTopicClick(topic, cat.category)}
+                                                        className="text-left px-3 py-2 rounded-md text-sm text-gray-300 hover:text-white hover:bg-brand-primary/20 hover:border-l-2 hover:border-brand-primary transition-all duration-150 bg-gray-900/50"
+                                                    >
+                                                        {topic}
+                                                    </button>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         ) : null}
                     </div>
