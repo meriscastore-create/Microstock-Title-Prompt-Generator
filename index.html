@@ -5,33 +5,81 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Microstock Title & Prompt Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
             colors: {
-              'brand-primary': '#4f46e5',
-              'brand-secondary': '#7c3aed',
-              'dark-bg': '#111827',
-              'dark-card': '#1f2937',
-              'dark-border': '#374151',
-              'light-text': '#f3f4f6',
-              'medium-text': '#9ca3af',
+              'brand-primary': '#6366f1', // Indigo 500
+              'brand-secondary': '#a855f7', // Purple 500
+              'glass-bg': 'rgba(255, 255, 255, 0.05)',
+              'glass-border': 'rgba(255, 255, 255, 0.1)',
+              'glass-highlight': 'rgba(255, 255, 255, 0.15)',
             },
             animation: {
               'fade-in': 'fadeIn 0.5s ease-in-out',
+              'blob': 'blob 7s infinite',
             },
             keyframes: {
               fadeIn: {
-                '0%': { opacity: '0' },
-                '100%': { opacity: '1' },
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
               },
+              blob: {
+                '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                '100%': { transform: 'translate(0px, 0px) scale(1)' },
+              }
             },
           },
         },
       }
     </script>
+    <style>
+      body {
+        background-color: #0f172a; /* Slate 900 */
+        color: #f8fafc;
+      }
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      }
+      .glass-input {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+      }
+      .glass-input:focus {
+        background: rgba(0, 0, 0, 0.4);
+        border-color: #818cf8;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    </style>
   <script type="importmap">
 {
   "imports": {
@@ -43,7 +91,7 @@
 }
 </script>
 </head>
-  <body class="bg-dark-bg text-light-text antialiased">
+  <body class="antialiased selection:bg-brand-primary selection:text-white">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

@@ -35,7 +35,7 @@ const Spinner: React.FC<{className?: string}> = ({className = "h-5 w-5"}) => (
     </svg>
 );
 
-const KeyIcon: React.FC<{ className?: string }> = ({ className = "w-6 h-6 text-medium-text" }) => (
+const KeyIcon: React.FC<{ className?: string }> = ({ className = "w-6 h-6" }) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
     </svg>
@@ -107,12 +107,14 @@ const Toast: React.FC<{ message: string; type: 'success' | 'error'; onClose: () 
     return () => clearTimeout(timer);
   }, [onClose]);
 
-  const bgColor = type === 'success' ? 'bg-green-600/90 border-green-700' : 'bg-red-600/90 border-red-700';
+  const bgClass = type === 'success' 
+    ? 'bg-green-500/20 border-green-500/50 text-green-100' 
+    : 'bg-red-500/20 border-red-500/50 text-red-100';
 
   return (
-    <div className={`flex items-center justify-between p-4 rounded-lg shadow-lg text-white border backdrop-blur-sm ${bgColor} animate-fade-in`}>
-      <span className="pr-4">{message}</span>
-      <button onClick={onClose} className="opacity-70 hover:opacity-100">&times;</button>
+    <div className={`flex items-center justify-between p-4 rounded-xl shadow-lg border backdrop-blur-md ${bgClass} animate-fade-in mb-3`}>
+      <span className="pr-4 font-medium">{message}</span>
+      <button onClick={onClose} className="opacity-70 hover:opacity-100 transition-opacity">&times;</button>
     </div>
   );
 };
@@ -134,29 +136,28 @@ const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ isOpen, onClose, onSave }) =>
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fade-in" aria-modal="true" role="dialog">
-            <div className="bg-dark-card rounded-lg p-6 sm:p-8 max-w-md w-full border border-dark-border m-4">
-                <h2 className="text-2xl font-bold mb-4">Enter Your Gemini API Key</h2>
-                <p className="text-medium-text mb-6">
-                    You can get a free API key from{' '}
-                    <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-brand-primary hover:underline font-semibold">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in p-4">
+            <div className="glass-panel rounded-2xl p-8 max-w-md w-full transform transition-all shadow-2xl">
+                <h2 className="text-2xl font-bold mb-4 text-white">Gemini API Key</h2>
+                <p className="text-gray-300 mb-6 leading-relaxed">
+                    Please enter your API key to unlock the generator. Get one for free at{' '}
+                    <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" className="text-brand-primary hover:text-brand-secondary font-semibold transition-colors underline decoration-brand-primary/50 underline-offset-4">
                         Google AI Studio
-                    </a>. Your key is only stored in your browser.
+                    </a>.
                 </p>
                 <input
                     type="password"
                     value={key}
                     onChange={(e) => setKey(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                    placeholder="Paste your API key here"
-                    className="w-full bg-gray-800 border border-dark-border rounded-md px-4 py-3 mb-6 text-light-text placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-primary"
-                    aria-label="Gemini API Key"
+                    placeholder="Paste your API key here..."
+                    className="w-full glass-input rounded-xl px-4 py-3 mb-6 text-white placeholder-gray-400 transition-all"
                 />
-                <div className="flex justify-end gap-4">
-                    <button onClick={onClose} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md transition-colors">
+                <div className="flex justify-end gap-3">
+                    <button onClick={onClose} className="px-5 py-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 transition-colors font-medium">
                         Cancel
                     </button>
-                    <button onClick={handleSave} className="bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-2 px-4 rounded-md transition-colors">
+                    <button onClick={handleSave} className="bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-brand-primary/90 hover:to-brand-secondary/90 text-white font-bold py-2 px-6 rounded-xl shadow-lg shadow-brand-primary/25 transition-all transform hover:scale-[1.02]">
                         Save Key
                     </button>
                 </div>
@@ -194,22 +195,22 @@ const StylePreferencesPopover: React.FC<StylePreferencesPopoverProps> = ({ isOpe
     if (!isOpen) return null;
 
     return (
-        <div ref={popoverRef} className="absolute z-20 mt-2 w-80 sm:w-96 bg-dark-card border border-dark-border rounded-lg shadow-xl p-4 right-0 animate-fade-in">
-            <div className="flex justify-between items-center mb-3">
-                <h3 className="font-bold text-lg text-light-text">Style Preferences</h3>
-                <button onClick={onClose} className="text-medium-text hover:text-light-text">
-                    <CloseIcon className="w-6 h-6" />
+        <div ref={popoverRef} className="absolute z-20 mt-3 w-80 sm:w-96 glass-panel rounded-2xl shadow-2xl p-5 right-0 animate-fade-in">
+            <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
+                <h3 className="font-bold text-lg text-white">Style Preferences</h3>
+                <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
+                    <CloseIcon className="w-5 h-5" />
                 </button>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-64 overflow-y-auto pr-2">
+            <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
                 {preferences.map(pref => (
                     <button
                         key={pref}
                         onClick={() => onToggle(pref)}
-                        className={`text-sm text-left p-2 rounded-md transition-colors duration-150 ${
+                        className={`text-xs sm:text-sm text-left px-3 py-2 rounded-lg transition-all duration-200 ${
                             selectedPreferences.includes(pref)
-                                ? 'bg-brand-primary text-white font-semibold'
-                                : 'bg-gray-800 hover:bg-gray-700 text-medium-text'
+                                ? 'bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-semibold shadow-md'
+                                : 'bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white'
                         }`}
                     >
                         {pref}
@@ -483,13 +484,18 @@ const App: React.FC = () => {
     };
 
     const titleCharCount = generatedTitle.length;
-    const titleCharCountColor = titleCharCount > 170 ? 'text-red-400' : 'text-green-400';
+    const titleCharCountColor = titleCharCount > 170 ? 'text-red-300' : 'text-green-400';
     const jsonCharCount = jsonString.length;
-    const jsonCharCountColor = jsonCharCount > 910 ? 'text-red-400' : 'text-green-400';
+    const jsonCharCountColor = jsonCharCount > 910 ? 'text-red-300' : 'text-green-400';
     const gridLayoutClass = showIframe ? 'lg:grid-cols-2' : 'lg:grid-cols-1';
 
     return (
-        <div className="min-h-screen p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen p-4 sm:p-6 lg:p-8 relative overflow-hidden">
+            {/* Ambient Background Animation */}
+            <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+            <div className="absolute top-0 -right-4 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+            <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+
             <div aria-live="assertive" className="fixed inset-0 flex items-start justify-end p-4 sm:p-6 z-50 pointer-events-none">
                 <div className="w-full max-w-sm space-y-2">
                     {toasts.map((toast) => (
@@ -499,26 +505,32 @@ const App: React.FC = () => {
             </div>
 
             <ApiKeyModal isOpen={isApiKeyModalOpen} onClose={() => setIsApiKeyModalOpen(false)} onSave={handleSaveApiKey} />
-            <header className="text-center mb-8 relative">
+            
+            <header className="text-center mb-12 relative z-10">
                 <button
                     onClick={() => setIsApiKeyModalOpen(true)}
-                    className="absolute top-0 right-0 bg-dark-card p-2 rounded-full hover:bg-gray-700 transition-colors"
+                    className="absolute top-0 right-0 bg-white/10 hover:bg-white/20 text-white p-2.5 rounded-full backdrop-blur-md transition-all border border-white/10 shadow-lg"
                     aria-label="Set API Key"
                 >
                     <KeyIcon />
                 </button>
-                <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">
-                    Microstock Title & Prompt Generator
+                <div className="inline-block mb-3">
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-brand-primary/20 to-brand-secondary/20 border border-brand-primary/30 text-indigo-200">
+                        AI-Powered Generator
+                    </span>
+                </div>
+                <h1 className="text-4xl sm:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 tracking-tight drop-shadow-lg">
+                    Microstock Studio
                 </h1>
-                <p className="mt-4 text-lg text-medium-text max-w-2xl mx-auto">
-                    Enter a keyword to generate an SEO-optimized title and a detailed JSON prompt for AI image generation.
+                <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed font-light">
+                    Create SEO-optimized titles and detailed pattern prompts with a single keyword.
                 </p>
             </header>
 
-            <main className="max-w-7xl mx-auto">
-                <div className="bg-dark-card shadow-lg rounded-lg p-6 border border-dark-border mb-8 max-w-4xl mx-auto">
+            <main className="max-w-7xl mx-auto relative z-10">
+                <div className="glass-panel rounded-2xl p-6 sm:p-8 mb-10 max-w-4xl mx-auto transform transition-all hover:shadow-brand-primary/10">
                     <div className="flex flex-col sm:flex-row items-center gap-4">
-                        <div className="relative flex-grow w-full">
+                        <div className="relative flex-grow w-full group">
                              <input
                                 type="text"
                                 value={userInput}
@@ -530,51 +542,51 @@ const App: React.FC = () => {
                                 placeholder={
                                     isCombining 
                                     ? "Creating a new concept..." 
-                                    : "e.g., Christmas Tree, Vintage Flowers"
+                                    : "Enter a keyword (e.g., Christmas Tree, Vintage Flowers)"
                                 }
                                 disabled={isCombining}
-                                className="w-full bg-gray-800 border border-dark-border rounded-md px-4 py-3 text-light-text placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-primary transition duration-200 pr-10 disabled:opacity-70"
+                                className="w-full glass-input rounded-xl px-5 py-4 text-lg text-white placeholder-gray-400 transition-all shadow-inner pr-12 disabled:opacity-60"
                             />
                             {(isCombining) ? (
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                    <Spinner className="w-5 h-5 text-brand-primary" />
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                    <Spinner className="w-6 h-6 text-brand-primary" />
                                 </div>
                             ) : userInput && (
                                 <button
                                     onClick={handleClearInput}
-                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-medium-text hover:text-light-text transition-colors"
+                                    className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-white transition-colors"
                                     aria-label="Clear input"
                                 >
-                                    <CloseIcon className="w-5 h-5" />
+                                    <CloseIcon className="w-6 h-6" />
                                 </button>
                             )}
                         </div>
-                        <div className="flex w-full sm:w-auto gap-4">
+                        <div className="flex w-full sm:w-auto gap-3">
                              {userInput.trim().length > 0 ? (
                                 <button
                                     onClick={handleCombineKeyword}
                                     disabled={isLoading || isCombining}
-                                    className="flex-grow flex items-center justify-center bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                                    className="flex-grow sm:flex-grow-0 flex items-center justify-center bg-gray-800/50 hover:bg-gray-700/50 border border-white/10 text-white font-semibold py-3.5 px-5 rounded-xl transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-md shadow-lg"
                                     title="Combine with a new unique keyword"
                                 >
                                     {isCombining ? <Spinner /> : <MagicWandIcon />}
-                                    <span className="hidden sm:inline sm:ml-2">Combine</span>
+                                    <span className="hidden sm:inline sm:ml-2">Mix</span>
                                 </button>
                              ) : (
                                 <button
                                     onClick={() => handleLoadTopics(false)}
                                     disabled={isLoading || isSuggestingTopics}
-                                    className="flex-grow flex items-center justify-center bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                                    className="flex-grow sm:flex-grow-0 flex items-center justify-center bg-gray-800/50 hover:bg-gray-700/50 border border-white/10 text-white font-semibold py-3.5 px-5 rounded-xl transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-md shadow-lg"
                                     title="Suggest Trending Keywords"
                                 >
                                     {isSuggestingTopics ? <Spinner /> : <LightbulbIcon />}
-                                    <span className="hidden sm:inline sm:ml-2">Suggest</span>
+                                    <span className="hidden sm:inline sm:ml-2">Ideas</span>
                                 </button>
                              )}
                             <button
                                 onClick={handleGenerate}
                                 disabled={isLoading || isSuggestingTopics || isCombining || !userInput.trim()}
-                                className="flex-grow flex items-center justify-center bg-brand-primary hover:bg-brand-primary/90 text-white font-bold py-3 px-6 rounded-md transition duration-200 disabled:bg-gray-500 disabled:cursor-not-allowed"
+                                className="flex-grow sm:flex-grow-0 flex items-center justify-center bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3.5 px-8 rounded-xl transition-all duration-200 shadow-lg shadow-brand-primary/30 transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                             >
                                 {isLoading ? (
                                     <>
@@ -589,47 +601,52 @@ const App: React.FC = () => {
                     </div>
                     
                     {/* SUGGESTION AREA */}
-                    <div className={`transition-[max-height,opacity,margin] duration-500 ease-in-out ${showSuggestionArea ? 'max-h-[1200px] opacity-100 mt-6' : 'max-h-0 opacity-0 mt-0'} overflow-hidden`}>
+                    <div className={`transition-all duration-500 ease-in-out ${showSuggestionArea ? 'max-h-[1200px] opacity-100 mt-8' : 'max-h-0 opacity-0 mt-0'} overflow-hidden`}>
                         {isSuggestingTopics ? (
                             <div className="flex justify-center items-center py-12">
-                                <div className="flex flex-col items-center gap-3">
-                                    <Spinner className="h-10 w-10 text-brand-primary" />
-                                    <p className="text-medium-text">Analyzing market trends...</p>
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="relative">
+                                        <div className="w-12 h-12 border-4 border-brand-primary/30 border-t-brand-primary rounded-full animate-spin"></div>
+                                        <div className="absolute top-0 left-0 w-12 h-12 border-4 border-transparent border-b-brand-secondary/50 rounded-full animate-spin animation-delay-1000"></div>
+                                    </div>
+                                    <p className="text-gray-400 font-light animate-pulse">Analyzing market trends...</p>
                                 </div>
                             </div>
                         ) : activeTopic ? (
                             // LEVEL 2: SPECIFIC KEYWORDS VIEW
-                            <div className="animate-fade-in p-2">
-                                <div className="flex items-center gap-4 mb-6">
-                                    <button 
-                                        onClick={handleBackToTopics}
-                                        className="flex items-center gap-2 text-medium-text hover:text-white transition-colors bg-gray-800/50 px-3 py-2 rounded-md"
-                                    >
-                                        <ChevronLeftIcon /> Back
-                                    </button>
-                                    <h3 className="text-xl font-bold text-white">
-                                        Trends for: <span className="text-brand-primary">{activeTopic}</span>
-                                    </h3>
+                            <div className="animate-fade-in">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-4">
+                                        <button 
+                                            onClick={handleBackToTopics}
+                                            className="flex items-center gap-2 text-gray-300 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg border border-white/5"
+                                        >
+                                            <ChevronLeftIcon /> Back
+                                        </button>
+                                        <h3 className="text-xl text-white font-light">
+                                            Trends for <strong className="text-brand-secondary font-bold">{activeTopic}</strong>
+                                        </h3>
+                                    </div>
                                 </div>
 
                                 {isSuggestingSpecifics ? (
                                     <div className="flex justify-center items-center py-12">
                                          <div className="flex flex-col items-center gap-3">
-                                            <Spinner className="h-10 w-10 text-brand-secondary" />
-                                            <p className="text-medium-text">Finding high-demand long-tail keywords...</p>
+                                            <Spinner className="h-8 w-8 text-brand-secondary" />
+                                            <p className="text-gray-400 text-sm">Finding high-demand keywords...</p>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                                         {specificKeywords.map((kw, idx) => (
                                             <button
                                                 key={idx}
                                                 onClick={() => handleSelectFinalKeyword(kw.name)}
-                                                className="text-left p-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-md transition-all flex justify-between items-start group"
+                                                className="text-left p-4 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-brand-primary/50 rounded-xl transition-all flex justify-between items-start group hover:-translate-y-1 hover:shadow-lg"
                                             >
-                                                <span className="text-sm text-gray-200 group-hover:text-white pr-2">{kw.name}</span>
-                                                <span className={`text-xs font-mono font-bold ${kw.score > 85 ? 'text-green-400' : 'text-yellow-400'}`}>
-                                                    {kw.score}%
+                                                <span className="text-sm text-gray-200 group-hover:text-white pr-2 font-medium">{kw.name}</span>
+                                                <span className={`text-xs font-mono font-bold px-2 py-1 rounded bg-black/30 ${kw.score > 85 ? 'text-green-400' : 'text-yellow-400'}`}>
+                                                    {kw.score}
                                                 </span>
                                             </button>
                                         ))}
@@ -638,19 +655,19 @@ const App: React.FC = () => {
                             </div>
                         ) : topicCategories.length > 0 ? (
                             // LEVEL 1: BROAD TOPICS VIEW
-                            <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-6">
                                 <div className="flex justify-end">
                                     <button 
                                         onClick={() => handleLoadTopics(true)} 
-                                        className="flex items-center gap-2 text-xs sm:text-sm text-medium-text hover:text-brand-primary transition-colors bg-gray-800 px-3 py-1.5 rounded-md border border-gray-700"
+                                        className="flex items-center gap-2 text-xs font-medium text-gray-400 hover:text-brand-primary transition-colors bg-black/20 px-3 py-1.5 rounded-lg border border-white/5 hover:border-brand-primary/30"
                                     >
-                                        <RefreshIcon className="w-4 h-4" /> Refresh Trends
+                                        <RefreshIcon className="w-3.5 h-3.5" /> Refresh Trends
                                     </button>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                                     {topicCategories.map((cat, idx) => (
-                                        <div key={idx} className="flex flex-col h-full bg-gray-800/30 rounded-lg p-4 border border-gray-700/50">
-                                            <h3 className="font-bold text-lg mb-4 text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400 min-h-[3.5rem] flex items-center justify-center">
+                                        <div key={idx} className="flex flex-col h-full bg-white/5 rounded-2xl p-5 border border-white/5 hover:border-white/10 transition-all">
+                                            <h3 className="font-bold text-lg mb-4 text-center text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-400 min-h-[3rem] flex items-center justify-center border-b border-white/5 pb-2">
                                                 {cat.category}
                                             </h3>
                                             <div className={`flex flex-col gap-2 overflow-y-auto pr-1 custom-scrollbar ${cat.topics.length > 12 ? 'max-h-[400px]' : 'h-auto'}`}>
@@ -658,7 +675,7 @@ const App: React.FC = () => {
                                                     <button
                                                         key={tIdx}
                                                         onClick={() => handleTopicClick(topic, cat.category)}
-                                                        className="text-left px-3 py-2 rounded-md text-sm text-gray-300 hover:text-white hover:bg-brand-primary/20 hover:border-l-2 hover:border-brand-primary transition-all duration-150 bg-gray-900/50"
+                                                        className="text-left px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:text-white hover:bg-brand-primary/20 transition-all duration-150"
                                                     >
                                                         {topic}
                                                     </button>
@@ -673,44 +690,48 @@ const App: React.FC = () => {
 
                 </div>
 
-                <div className={`grid ${gridLayoutClass} gap-8`}>
+                <div className={`grid ${gridLayoutClass} gap-8 transition-all duration-300`}>
                     <div className="flex flex-col gap-8">
                         {generatedTitle && (
-                            <div className="bg-dark-card shadow-lg rounded-lg p-6 border border-dark-border animate-fade-in">
-                                <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">Generated Title</h2>
-                                    <span className={`text-sm font-mono ${titleCharCountColor}`}>{titleCharCount} / 170 characters</span>
+                            <div className="glass-panel rounded-2xl p-6 sm:p-8 animate-fade-in shadow-xl">
+                                <div className="flex justify-between items-center mb-5">
+                                    <h2 className="text-2xl font-bold text-white">Generated Title</h2>
+                                    <span className={`text-xs font-mono px-2 py-1 rounded bg-black/30 ${titleCharCountColor}`}>{titleCharCount} / 170</span>
                                 </div>
-                                <p className="text-medium-text mb-4 bg-gray-800 p-4 rounded-md">{generatedTitle}</p>
                                 
-                                <div className="flex flex-col sm:flex-row gap-4">
+                                <div className="relative group">
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-brand-primary to-brand-secondary rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                                    <div className="relative bg-black/40 rounded-xl p-5 border border-white/10">
+                                        <p className="text-lg text-gray-200 leading-relaxed">{generatedTitle}</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex flex-col sm:flex-row gap-3 mt-6">
                                     <button
                                         onClick={handleRefreshTitleElements}
                                         disabled={isCreatingPrompt || isRefreshingTitle}
-                                        className="flex-1 flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 justify-center disabled:bg-gray-500"
-                                        title="Refresh title elements"
+                                        className="flex-1 flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 font-medium py-2.5 px-4 rounded-xl transition duration-200 justify-center disabled:opacity-50"
                                     >
-                                        {isRefreshingTitle ? <Spinner /> : <RefreshIcon />} Refresh Elements
+                                        {isRefreshingTitle ? <Spinner /> : <RefreshIcon />} Elements
                                     </button>
 
                                     <div className="relative flex w-full flex-1">
                                         <button
                                             onClick={handleCreateJsonPrompt}
                                             disabled={isCreatingPrompt || isRefreshingTitle}
-                                            className="flex-grow flex items-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2 px-4 rounded-l-md transition duration-200 justify-center disabled:bg-gray-500"
+                                            className="flex-grow flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-2.5 px-4 rounded-l-xl transition duration-200 justify-center disabled:opacity-50 shadow-lg shadow-purple-900/20"
                                         >
                                             {isCreatingPrompt ? <Spinner /> : <MagicWandIcon />}
-                                            Create JSON
+                                            JSON Prompt
                                         </button>
                                         <button
                                             ref={preferencesButtonRef}
                                             onClick={() => setIsPreferencesOpen(prev => !prev)}
-                                            className="flex items-center justify-center bg-purple-700 hover:bg-purple-600 border-l border-purple-800 text-white font-bold py-2 px-4 rounded-r-md transition duration-200 h-full"
-                                            title="Set Style Preferences"
+                                            className="flex items-center justify-center bg-indigo-700 hover:bg-indigo-600 border-l border-indigo-800 text-white font-bold py-2.5 px-3 rounded-r-xl transition duration-200 relative"
                                         >
                                             <SlidersIcon />
                                             {selectedStylePreferences.length > 0 && (
-                                                <span className="absolute -top-2 -right-2 bg-brand-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center shadow-sm border border-red-400">
                                                     {selectedStylePreferences.length}
                                                 </span>
                                             )}
@@ -725,13 +746,13 @@ const App: React.FC = () => {
                                         />
                                     </div>
 
-                                    <button onClick={() => handleCopy(generatedTitle, 'title')} className="flex-1 flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 justify-center">
+                                    <button onClick={() => handleCopy(generatedTitle, 'title')} className="flex-1 flex items-center gap-2 bg-blue-600/80 hover:bg-blue-500/80 text-white font-semibold py-2.5 px-4 rounded-xl transition duration-200 justify-center backdrop-blur-sm">
                                         <CopyIcon /> Copy Title
                                     </button>
                                 </div>
 
-                                <div className="mt-4">
-                                     <button onClick={handleCheckKeywords} className="flex items-center gap-2 bg-indigo-600/50 hover:bg-indigo-500/50 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
+                                <div className="mt-4 pt-4 border-t border-white/5">
+                                     <button onClick={handleCheckKeywords} className="flex items-center gap-2 text-gray-400 hover:text-brand-primary hover:bg-white/5 font-medium py-2 px-4 rounded-lg transition duration-200 w-full justify-center text-sm">
                                         <KeywordCheckerIcon /> Check Keywords on MyKeyworder
                                     </button>
                                 </div>
@@ -739,22 +760,33 @@ const App: React.FC = () => {
                         )}
 
                         {jsonPrompt && (
-                             <div className="bg-dark-card shadow-lg rounded-lg p-6 border border-dark-border animate-fade-in">
-                                <div className="flex justify-between items-center mb-4">
-                                     <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-400">JSON Prompt</h2>
-                                     <span className={`text-sm font-mono ${jsonCharCountColor}`}>{jsonCharCount} / 910 characters</span>
+                             <div className="glass-panel rounded-2xl p-6 sm:p-8 animate-fade-in shadow-xl">
+                                <div className="flex justify-between items-center mb-5">
+                                     <h2 className="text-2xl font-bold text-white">JSON Prompt</h2>
+                                     <span className={`text-xs font-mono px-2 py-1 rounded bg-black/30 ${jsonCharCountColor}`}>{jsonCharCount} / 910</span>
                                 </div>
-                                <pre className="text-sm bg-gray-800 p-4 rounded-md overflow-x-auto text-light-text whitespace-pre-wrap">
-                                    <code>{jsonString}</code>
-                                </pre>
-                                <div className="mt-4 flex flex-col sm:flex-row gap-4">
-                                    <button onClick={() => handleModifyPrompt('color')} disabled={!!isModifying} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center disabled:bg-gray-600 disabled:cursor-not-allowed">
-                                        {isModifying === 'color' ? <Spinner /> : <MagicWandIcon />} Change Color
+                                
+                                <div className="relative bg-black/50 rounded-xl border border-white/10 overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-full h-8 bg-white/5 border-b border-white/5 flex items-center px-4 gap-2">
+                                        <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
+                                        <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                                        <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
+                                    </div>
+                                    <pre className="text-sm p-4 pt-12 overflow-x-auto text-blue-100 whitespace-pre-wrap font-mono custom-scrollbar max-h-[500px]">
+                                        <code>{jsonString}</code>
+                                    </pre>
+                                </div>
+
+                                <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                                    <button onClick={() => handleModifyPrompt('color')} disabled={!!isModifying} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 font-medium py-2.5 px-4 rounded-xl transition duration-200 w-full justify-center disabled:opacity-50">
+                                        {isModifying === 'color' ? <Spinner /> : <MagicWandIcon className="text-pink-400" />}
+                                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-300 to-purple-300 font-bold">Remix Color</span>
                                     </button>
-                                    <button onClick={() => handleModifyPrompt('style')} className="flex items-center gap-2 bg-gray-700 hover:bg-gray-600 text-light-text font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
-                                       {isModifying === 'style' ? <Spinner /> : <MagicWandIcon />} Change Style
+                                    <button onClick={() => handleModifyPrompt('style')} disabled={!!isModifying} className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 font-medium py-2.5 px-4 rounded-xl transition duration-200 w-full justify-center disabled:opacity-50">
+                                       {isModifying === 'style' ? <Spinner /> : <MagicWandIcon className="text-blue-400" />}
+                                       <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-cyan-300 font-bold">Remix Style</span>
                                     </button>
-                                    <button onClick={() => handleCopy(jsonString, 'prompt')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md transition duration-200 w-full justify-center">
+                                    <button onClick={() => handleCopy(jsonString, 'prompt')} className="flex items-center gap-2 bg-brand-primary hover:bg-brand-secondary text-white font-bold py-2.5 px-4 rounded-xl transition duration-200 w-full justify-center shadow-lg shadow-brand-primary/20">
                                         <CopyIcon /> Copy JSON
                                     </button>
                                 </div>
@@ -763,9 +795,9 @@ const App: React.FC = () => {
                     </div>
 
                     {showIframe && (
-                        <div className="animate-fade-in lg:sticky lg:top-8">
-                            <div className="bg-dark-card shadow-lg rounded-lg border border-dark-border w-full h-[80vh]">
-                                <iframe src={iframeUrl} className="w-full h-full rounded-lg" title="MyKeyworder Keyword Checker"></iframe>
+                        <div className="animate-fade-in lg:sticky lg:top-8 h-full">
+                            <div className="glass-panel rounded-2xl p-1 w-full h-[80vh] shadow-2xl border border-white/20">
+                                <iframe src={iframeUrl} className="w-full h-full rounded-xl bg-white" title="MyKeyworder Keyword Checker"></iframe>
                             </div>
                         </div>
                     )}
